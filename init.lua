@@ -1,0 +1,3 @@
+local lulz = {}
+
+return lulz
