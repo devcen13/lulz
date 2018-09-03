@@ -80,7 +80,7 @@ local function _extend_recursive(base, overrides, policy)
 end
 
 
-local tablex = {
+local dict = {
   equals = _compare_recursive,
   dump   = _dump_recursive,
   clone  = _clone_recursive,
@@ -91,4 +91,4 @@ local tablex = {
   clone_new_items = clone_new_items,
 }
 
-return tablex
+return dict

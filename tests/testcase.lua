@@ -1,5 +1,5 @@
 local class = require 'lulz.class'
-local tablex = require 'lulz.tablex'
+local dict = require 'lulz.dict'
 
 local ESCAPE = string.char(27)
 local RED    = ESCAPE .. '[1;31m'
@@ -48,14 +48,14 @@ function TestCase:assert(cond, message)
 end
 
 function TestCase:assert_equal(actual, expected, message)
-  if tablex.equals(actual, expected) then return end
-  self:fail('Actual:   ' .. tablex.dump(actual))
-  self:fail('Expected: ' .. tablex.dump(expected))
+  if dict.equals(actual, expected) then return end
+  self:fail('Actual:   ' .. dict.dump(actual))
+  self:fail('Expected: ' .. dict.dump(expected))
   self:fail(message)
 end
 
 function TestCase:assert_not_equal(actual, expected, message)
-  if not tablex.equals(actual, expected) then return end
+  if not dict.equals(actual, expected) then return end
   self:fail(message)
 end
 

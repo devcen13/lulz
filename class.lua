@@ -1,7 +1,7 @@
 local lulz = require 'lulz'
-local tablex = require 'lulz.tablex'
+local dict = require 'lulz.dict'
 
-local clone, extend = tablex.clone, tablex.extend
+local clone, extend = dict.clone, dict.extend
 
 local error = error
 local smt = setmetatable
