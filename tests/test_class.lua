@@ -186,3 +186,30 @@ function TestInheritance:test_inherited_function_override()
   local inst = derived:new(5)
   self:assert_equal(inst:get_value(), 42, 'Inherited function not overrided')
 end
+
+function TestInheritance:test_class_is_base_of_self()
+  self:assert(class.is_base_of(self.base, self.base))
+end
+
+function TestInheritance:test_class_is_base_of_derived()
+  local derived = self.base:inherit {}
+  self:assert(class.is_base_of(self.base, derived))
+end
+
+function TestInheritance:test_instance_is_instance_of_self_type()
+  self:assert(class.is_base_of(self.base:new(), self.base))
+end
+
+function TestInheritance:test_instance_is_instance_of_self_type()
+  self:assert(class.is_instance(self.base:new(), self.base))
+end
+
+function TestInheritance:test_derived_instance_is_instance_of_self_type()
+  local derived = self.base:inherit {}
+  self:assert(class.is_instance(derived:new(), derived))
+end
+
+function TestInheritance:test_derived_instance_is_instance_of_base_type()
+  local derived = self.base:inherit {}
+  self:assert(class.is_instance(derived:new(), self.base))
+end

@@ -194,8 +194,8 @@ function builder.new(cls, ...)
 end
 
 --[[ Root base class ]]
-local base = builder.classtable('object')
-function base.__init__()
+local object = builder.classtable('object')
+function object.__init__()
   -- nothing here (at the moment)
 end
 
@@ -203,11 +203,22 @@ end
 --[[ Public API ]]
 local class = smt({}, {
   __call = function(_, class_tbl)
-    return base:inherit(class_tbl)
+    return object:inherit(class_tbl)
   end
 })
 
-class.property = function(prop_tbl)
+function class.is_base_of(base, cls)
+  if type(cls) ~= 'table' then return false end
+  if cls == base then return true end
+  return class.is_base_of(cls.__super__, base)
+end
+
+function class.is_instance(instance, cls)
+  if type(instance) ~= 'table' then return false end
+  return class.is_base_of(cls, instance.__type__)
+end
+
+function class.property(prop_tbl)
   return extend(prop_tbl, { __type__ = '__property__' })
 end
 
