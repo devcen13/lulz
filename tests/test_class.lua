@@ -97,6 +97,8 @@ function TestMeta:setup()
       this.y = y
     end,
 
+    __class_call__ = function(cls, ...) return cls:new(...) end,
+
     __str__   = function(this) return '{ ' .. this.x .. ', ' .. this.y .. ' }' end,
     __len__   = function(this) return math.sqrt(this.x^2 + this.y^2) end,
 
@@ -113,6 +115,11 @@ function TestMeta:setup()
     __lt__   = function(this, value) return #this < #value end,
     __le__   = function(this, value) return #this <= #value end,
   }
+end
+
+function TestMeta:test_class_call()
+  local inst = self.base(2, 3)
+  self:assert_equal(inst, { x = 2, y = 3 })
 end
 
 function TestMeta:test_eq()

@@ -4,7 +4,7 @@ local dict = require 'lulz.dict'
 local clone, extend = dict.clone, dict.extend
 
 local error = error
-local smt = setmetatable
+local smt, gmt = setmetatable, getmetatable
 
 --[[ Classes registry ]]
 local __classes__ = {}
@@ -14,7 +14,7 @@ if lulz.debug then
 end
 
 --[[ Keyword setters ]]
-local function __private(method)
+local function _private(method)
   return {
     get = function() return nil end, -- rawget must work!
     set = function()
@@ -23,7 +23,7 @@ local function __private(method)
   }
 end
 
-local function __metamethod(method)
+local function _metamethod(method)
   return {
     get = function(class) return class.__meta__[method] end, -- rawget must work!
     set = function(class, value)
@@ -33,7 +33,22 @@ local function __metamethod(method)
   }
 end
 
-local function __rawset(method)
+local function _classmeta(method)
+  return {
+    get = function(class)
+      local meta = gmt(class)
+      return meta[method]
+    end,
+    set = function(class, value)
+      assert(type(value) == 'function', 'Metamethods must be functions.')
+      local meta = gmt(class)
+      meta[method] = value
+      smt(class, meta)
+    end
+  }
+end
+
+local function _rawset(method)
   return {
     get = nil,
     set = function(class, value)
@@ -43,37 +58,39 @@ local function __rawset(method)
 end
 
 local keywords = {
-  __mixin__         = __private('__mixin__'), -- reserved
-  __init__          = __rawset('__init__'),
-  __init_subclass__ = __rawset('__init_subclass__'),
+  __mixin__         = _private('__mixin__'), -- reserved
+  __init__          = _rawset('__init__'),
 
-  __name__     = __private('__name__'),
-  __meta__     = __private('__meta__'),
-  __static__   = __private('__static__'),
-  __getters__  = __private('__getters__'),
-  __setters__  = __private('__setters__'),
-  __methods__  = __private('__methods__'),
-  __abstract__ = __private('__abstract__'),
+  __init_subclass__ = _rawset('__init_subclass__'),
+  __class_call__    = _classmeta('__call'),
 
-  __call__  = __metamethod('__call'),
-  __str__   = __metamethod('__tostring'),
-  __len__   = __metamethod('__len'),
-  __iter__  = __metamethod('__ipairs'),
-  __items__ = __metamethod('__pairs'),
-  __del__   = __metamethod('__gc'),
+  __name__     = _private('__name__'),
+  __meta__     = _private('__meta__'),
+  __static__   = _private('__static__'),
+  __getters__  = _private('__getters__'),
+  __setters__  = _private('__setters__'),
+  __methods__  = _private('__methods__'),
+  __abstract__ = _private('__abstract__'),
 
-  __unm__    = __metamethod('__unm'),
-  __add__    = __metamethod('__add'),
-  __sub__    = __metamethod('__sub'),
-  __mul__    = __metamethod('__mul'),
-  __div__    = __metamethod('__div'),
-  __mod__    = __metamethod('__mod'),
-  __pow__    = __metamethod('__pow'),
-  __concat__ = __metamethod('__concat'),
+  __call__  = _metamethod('__call'),
+  __str__   = _metamethod('__tostring'),
+  __len__   = _metamethod('__len'),
+  __iter__  = _metamethod('__ipairs'),
+  __items__ = _metamethod('__pairs'),
+  __del__   = _metamethod('__gc'),
 
-  __eq__ = __metamethod('__eq'),
-  __lt__ = __metamethod('__lt'),
-  __le__ = __metamethod('__le'),
+  __unm__    = _metamethod('__unm'),
+  __add__    = _metamethod('__add'),
+  __sub__    = _metamethod('__sub'),
+  __mul__    = _metamethod('__mul'),
+  __div__    = _metamethod('__div'),
+  __mod__    = _metamethod('__mod'),
+  __pow__    = _metamethod('__pow'),
+  __concat__ = _metamethod('__concat'),
+
+  __eq__ = _metamethod('__eq'),
+  __lt__ = _metamethod('__lt'),
+  __le__ = _metamethod('__le'),
 }
 
 --[[ Set attribute ]]
