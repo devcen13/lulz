@@ -27,7 +27,11 @@ end
 local function _foldl(func, list, accum)
   if type(func) == 'string' then func = op[func] end
   for _,v in ipairs(list) do
-    accum = accum == nil and v or func(accum, v)
+    if accum == nil then
+      accum = v
+    else
+      accum = func(accum, v)
+    end
   end
   return accum
 end
