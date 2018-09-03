@@ -6,6 +6,7 @@ require 'lulz.tests.test_class'
 require 'lulz.tests.test_functional'
 require 'lulz.tests.test_str'
 require 'lulz.tests.test_namedtuple'
+require 'lulz.tests.test_generator'
 
 
 tests:run_all_tests()
