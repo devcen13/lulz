@@ -194,6 +194,48 @@ function TestInheritance:test_inherited_function_override()
   self:assert_equal(inst:get_value(), 42, 'Inherited function not overrided')
 end
 
+function TestInheritance:test_abstract_class_is_abstract()
+  self.base.x = class.abstract_property()
+  self:assert(class.is_abstract(self.base))
+end
+
+function TestInheritance:test_abstract_class_cannot_be_instanced()
+  self.base.x = class.abstract_property()
+  self:expect_failure(function() self.base:new() end)
+end
+
+function TestInheritance:test_overriding_abstract_property_with_method_fails()
+  self.base.x = class.abstract_property()
+  self:expect_failure(function() self.base.x = function() end end)
+end
+
+function TestInheritance:test_overriding_abstract_method_with_property_fails()
+  self.base.x = class.abstract_method()
+  self:expect_failure(function() self.base.x = class.property { get = 5 } end)
+end
+
+function TestInheritance:test_implementing_abstract_method_creates_valid_class()
+  self.base.x = class.abstract_method()
+  local derived = self.base:inherit {
+    x = function() return 'x' end
+  }
+  local inst = derived:new()
+  self:expect_failure(function() self.base:new() end)
+  self:assert_equal(inst.x(), 'x')
+end
+
+function TestInheritance:test_implementing_abstract_property_creates_valid_class()
+  self.base.x = class.abstract_property()
+  local derived = self.base:inherit {
+    x = class.property {
+      get = function() return 'x' end
+    }
+  }
+  local inst = derived:new()
+  self:expect_failure(function() self.base:new() end)
+  self:assert_equal(inst.x, 'x')
+end
+
 function TestInheritance:test_class_is_base_of_self()
   self:assert(class.is_base_of(self.base, self.base))
 end

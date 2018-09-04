@@ -94,8 +94,29 @@ local keywords = {
 }
 
 --[[ Set attribute ]]
+local function _try_add_abstract(class, name, prop)
+  if type(prop) ~= 'table' or prop.__type__ ~= '__abstract__' then return false end
+  -- Check if already exists
+  if prop.__expect__ == '__property__' and class.__getters__[name] or class.__setters__[name] then
+    return true
+  end
+  if prop.__expect__ == '__method__' and class.__methods__[name] then
+    return true
+  end
+
+  class.__abstract__[name] = prop
+  return true
+end
+
 local function _try_add_property(class, name, prop)
   if type(prop) ~= 'table' or prop.__type__ ~= '__property__' then return false end
+  local abstract = class.__abstract__[name]
+  if abstract then
+    if abstract.__expect__ ~= '__property__' then
+      error('Abstract type mismatch. Expected ' .. abstract.__expect__ .. '. Got __property__')
+    end
+    class.__abstract__[name] = nil
+  end
   class.__getters__[name] = prop.get or function() error('Attempt to set readonly property ' .. name) end
   class.__setters__[name] = prop.set or function() error('Attempt to get private property ' .. name) end
   return true
@@ -103,6 +124,13 @@ end
 
 local function _try_add_method(class, name, prop)
   if type(prop) ~= 'function' then return false end
+  local abstract = class.__abstract__[name]
+  if abstract then
+    if abstract.__expect__ ~= '__method__' then
+      error('Abstract type mismatch. Expected ' .. abstract.__expect__ .. '. Got __method__')
+    end
+    class.__abstract__[name] = nil
+  end
   class.__methods__[name] = prop
   return true
 end
@@ -111,8 +139,9 @@ local function _set_attribute(class, k, v)
   if keywords[k] then
     return keywords[k].set(class, v)
   end
-  if _try_add_property(class, k, v) then return end
-  if _try_add_method  (class, k, v) then return end
+  if _try_add_abstract(class, k, v) or
+     _try_add_property(class, k, v) or
+     _try_add_method  (class, k, v) then return end
   rawset(class.__static__, k, v)
 end
 
@@ -180,6 +209,7 @@ function builder.classtable(name, super)
     __name__     = name,
     __meta__     = _metatable(super),
     __static__   = _statictable(super),
+    __abstract__ = super and clone(super.__abstract__) or {},
     __methods__  = super and clone(super.__methods__)  or {},
     __getters__  = super and clone(super.__getters__)  or {},
     __setters__  = super and clone(super.__setters__)  or {},
@@ -203,6 +233,9 @@ function builder.inherit(base_type, data)
 end
 
 function builder.new(cls, ...)
+  if next(cls.__abstract__) then
+    error('Cannot instantiate abstract class ' .. cls.__name__)
+  end
   local instance = smt(clone(cls.__methods__), cls.__meta__)
   rawset(instance, '__type__', cls)
   local init = rawget(cls, '__init__')
@@ -224,6 +257,11 @@ local class = smt({}, {
   end
 })
 
+function class.is_abstract(cls)
+  if type(cls) ~= 'table' then return false end
+  return next(cls.__abstract__) ~= nil
+end
+
 function class.is_base_of(base, cls)
   if type(cls) ~= 'table' then return false end
   if cls == base then return true end
@@ -237,6 +275,14 @@ end
 
 function class.property(prop_tbl)
   return extend(prop_tbl, { __type__ = '__property__' })
+end
+
+function class.abstract_method()
+  return { __type__ = '__abstract__', __expect__ = '__method__' }
+end
+
+function class.abstract_property()
+  return { __type__ = '__abstract__', __expect__ = '__property__' }
 end
 
 return class
