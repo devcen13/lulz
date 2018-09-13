@@ -64,6 +64,9 @@ local keywords = {
   __init_subclass__ = _rawset('__init_subclass__'),
   __class_call__    = _classmeta('__call'),
 
+  __newindex = _rawset('__newindex'),
+  __index    = _rawset('__index'),
+
   __name__     = _private('__name__'),
   __meta__     = _private('__meta__'),
   __static__   = _private('__static__'),
@@ -166,12 +169,13 @@ local function _metatable(super)
       if setters[k] then return setters[k](inst, v) end
       local static = inst.__type__.__static__
       if static[k] then static[k] = v; return end
-      rawset(inst, k, v)
+      inst.__type__.__newindex(inst, k, v)
     end,
     __index    = function(inst, k)
       local getters = inst.__type__.__getters__
       if getters[k] then return getters[k](inst) end
-      return inst.__type__[k]
+      if inst.__type__[k] ~= nil then return inst.__type__[k] end
+      return inst.__type__.__index(inst, k)
     end,
   }
 end
@@ -213,6 +217,8 @@ function builder.classtable(name, super)
     __methods__  = super and clone(super.__methods__)  or {},
     __getters__  = super and clone(super.__getters__)  or {},
     __setters__  = super and clone(super.__setters__)  or {},
+    __newindex   = rawset,
+    __index      = rawget,
   }
   return smt(class, {
     __newindex = _set_attribute,

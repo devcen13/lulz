@@ -91,10 +91,10 @@ end
 local TestMeta = TestCase:inherit 'Class Meta'
 
 function TestMeta:setup()
-  self.base = class {
+  self.base = class 'vec2' {
     __init__ = function(this, x, y)
-      this.x = x
-      this.y = y
+      rawset(this, 'x', x)
+      rawset(this, 'y', y)
     end,
 
     __class_call__ = function(cls, ...) return cls:new(...) end,
@@ -114,6 +114,9 @@ function TestMeta:setup()
     __eq__   = function(this, value) return this.x == value.x and this.y == value.y end,
     __lt__   = function(this, value) return #this < #value end,
     __le__   = function(this, value) return #this <= #value end,
+
+    __newindex = function() error('invalid attribute') end,
+    __index = function() error('invalid attribute') end
   }
 end
 
@@ -159,6 +162,20 @@ end
 
 function TestMeta:test_div()
   self:assert_equal(self.base:new(6, 3) / 3, self.base:new(2, 1))
+end
+
+function TestMeta:test_newindex()
+  local inst = self.base:new(2, 3)
+  inst.x = 0
+  self:assert_equal(inst.x, 0)
+  self:expect_failure(function() inst.z = 0 end)
+end
+
+function TestMeta:test_index()
+  local inst = self.base:new(2, 3)
+  local x = inst.x
+  self:assert_equal(x, inst.x)
+  self:expect_failure(function() local z = inst.z end)
 end
 
 
