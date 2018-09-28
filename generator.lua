@@ -1,23 +1,29 @@
 local class = require 'lulz.class'
+local iterator = require 'lulz.iterator'
 
-local co_create, co_resume = coroutine.create, coroutine.resume
+local co_create, co_resume, co_yield = coroutine.create, coroutine.resume, coroutine.yield
 
 
-local generator = class 'generator' {
-  __init__ = function(self, gen)
-    self._gen = gen
+local generator = iterator:inherit 'generator' {
+  __init__ = function(self, ...)
+    self._co = co_create(self.gen)
+    self._args = {...}
   end,
-  __call__ = function(self, ...)
-    local gen = co_create(self._gen)
-    local args = {...}
-    return function()
-      local _, k, v = co_resume(gen, unpack(args))
-      args = {}
-      return k, v
-    end
-  end
+  next = function(self)
+    self._args = { co_resume(self._co, self, unpack(self._args)) }
+    return self._args[2], self._args[3]
+  end,
+  yield = function(self, ...)
+    co_yield(...)
+  end,
+
+  gen = class.abstract_method()
 }
 
-generator.__class_call__ = generator.new
+generator.__class_call__ = function(_, tbl)
+  local gen = generator:inherit(tbl)
+  gen.__class_call__ = gen.new
+  return gen
+end
 
 return generator
