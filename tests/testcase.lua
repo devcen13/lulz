@@ -7,11 +7,11 @@ local GREEN  = ESCAPE .. '[1;32m'
 local YELLOW = ESCAPE .. '[1;33m'
 local WHITE  = ESCAPE .. '[1;37m'
 
-local tests = {}
+local _testcaseclasses = {}
 local TestCase = class {
   cases = {},
   __init_subclass__ = function(self)
-    table.insert(tests, self)
+    table.insert(_testcaseclasses, self)
   end,
   __init__ = function(self)
     self.success = true
@@ -107,12 +107,33 @@ function TestCase:run()
   print('-- Summary: ' .. passed .. ' out of ' .. all .. ' tests passed with ' .. warnings .. ' warning(s)')
   print('-------------------------------------------------------')
   print(WHITE)
+
+  return all, passed, warnings
 end
 
 function TestCase.run_all_tests()
-  for _, case in pairs(tests) do
-    case:run()
+  local cases = 0
+  local passedcases = 0
+
+  local tests = 0
+  local passed = 0
+  local warnings = 0
+
+  for _, case in pairs(_testcaseclasses) do
+    local _tests, _passed, warns = case:run()
+    cases = cases + 1
+    if _tests == _passed then passedcases = passedcases + 1 end
+    tests = tests + _tests
+    passed = passed + _passed
+    warnings = warnings + warns
   end
+
+  print((passed == tests) and (warnings > 0 and YELLOW or GREEN) or RED)
+  print('-------------------------------------------------------')
+  print('-- Overall summary:')
+  print('-- ' .. passedcases .. ' (' .. passed .. ') out of ' .. cases .. ' (' .. tests .. ') tests passed with ' .. warnings .. ' warning(s)')
+  print('-------------------------------------------------------')
+  print(WHITE)
 end
 
 return TestCase
