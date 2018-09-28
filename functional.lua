@@ -38,9 +38,9 @@ local function _compose(f, g)
 end
 
 local _map = generator {
-  gen = function(func, params)
+  gen = function(self, func, params)
     for a,b,c,d,e,f in params do
-      yield(func(a,b,c,d,e,f))
+      self:yield(func(a,b,c,d,e,f))
     end
   end
 }

@@ -19,10 +19,18 @@ local TestUtils = TestCase:inherit 'Functional Utils'
 
 function TestUtils:test_zero_range()
   local counter = 0
-  for i in fn.range(0) do
+  for _ in fn.range(0) do
     counter = counter + 1
   end
   self:assert_equal(counter, 0)
+end
+
+function TestUtils:test_one_range()
+  local counter = 0
+  for _ in fn.range(1) do
+    counter = counter + 1
+  end
+  self:assert_equal(counter, 1)
 end
 
 function TestUtils:test_single_argument_range()
@@ -189,4 +197,33 @@ function TestFilter:test_filter_ipairs()
     iters = iters + 1
   end
   self:assert_equal(iters, 3)
+end
+
+
+local TestMap = TestCase:inherit 'Functional Map'
+
+function TestMap:test_map_empty()
+  local iters = 0
+  for _ in fn.map(fn.id, fn.range(0)) do
+    iters = iters + 1
+  end
+  self:assert_equal(iters, 0)
+end
+
+function TestMap:test_map_id()
+  local iters = 0
+  for val in fn.map(fn.id, fn.range(30)) do
+    iters = iters + 1
+    self:assert_equal(val, iters)
+  end
+  self:assert_equal(iters, 30)
+end
+
+function TestMap:test_map_square()
+  local iters = 0
+  for val in fn.map(function(v) return v^2 end, fn.range(30)) do
+    iters = iters + 1
+    self:assert_equal(val, iters ^ 2)
+  end
+  self:assert_equal(iters, 30)
 end
