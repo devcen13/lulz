@@ -17,6 +17,14 @@ end
 
 local TestUtils = TestCase:inherit 'Functional Utils'
 
+function TestUtils:test_zero_range()
+  local counter = 0
+  for i in fn.range(0) do
+    counter = counter + 1
+  end
+  self:assert_equal(counter, 0)
+end
+
 function TestUtils:test_single_argument_range()
   local counter = 0
   local last
@@ -130,6 +138,14 @@ end
 
 
 local TestFilter = TestCase:inherit 'Functional Filter'
+
+function TestFilter:test_filter_empty()
+  local iters = 0
+  for _ in fn.filter(function(_) return true end, fn.range(0)) do
+    iters = iters + 1
+  end
+  self:assert_equal(iters, 0)
+end
 
 function TestFilter:test_filter_true()
   local iters = 0

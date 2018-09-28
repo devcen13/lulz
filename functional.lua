@@ -15,6 +15,7 @@ end
 local _range = generator {
   gen = function(self, start, stop, step)
     if stop == nil then
+      if start == 0 then return end
       stop = start
       start = 1
     end
