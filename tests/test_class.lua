@@ -87,6 +87,11 @@ function TestClass:test_readonly_property()
   self:assert(inst.x == 5, 'Readonly property value changed')
 end
 
+function TestClass:test_class_can_be_found_by_id()
+  local base = class.get_by_id(self.base.__id__)
+  self:assert(base == self.base)
+end
+
 
 local TestMeta = TestCase:inherit 'Class Meta'
 
@@ -262,8 +267,15 @@ function TestInheritance:test_class_is_base_of_derived()
   self:assert(class.is_base_of(self.base, derived))
 end
 
-function TestInheritance:test_instance_is_instance_of_self_type()
-  self:assert(class.is_base_of(self.base:new(), self.base))
+function TestInheritance:test_class_is_not_base_of_child()
+  local derived = self.base:inherit {}
+  self:assert_false(class.is_base_of(derived, self.base))
+end
+
+function TestInheritance:test_class_is_not_base_of_sibling()
+  local derived1 = self.base:inherit {}
+  local derived2 = self.base:inherit {}
+  self:assert_false(class.is_base_of(derived1, derived2))
 end
 
 function TestInheritance:test_instance_is_instance_of_self_type()
@@ -278,6 +290,12 @@ end
 function TestInheritance:test_derived_instance_is_instance_of_base_type()
   local derived = self.base:inherit {}
   self:assert(class.is_instance(derived:new(), self.base))
+end
+
+function TestInheritance:test_instance_is_not_instance_of_sibling()
+  local derived1 = self.base:inherit {}
+  local derived2 = self.base:inherit {}
+  self:assert_false(class.is_instance(derived1:new(), derived2))
 end
 
 
@@ -348,6 +366,6 @@ function TestMixin:test_mixin_statics_are_available()
       class { static_var = 5 }
     }
   }
-  
+
   self:assert_equal(derived:new().static_var, 5)
 end

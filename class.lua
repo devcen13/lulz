@@ -13,6 +13,14 @@ if lulz.debug then
   rawset(_G, '__classes__', __classes__)
 end
 
+local function _classid()
+  return #__classes__ + 1
+end
+
+local function _register_class(class)
+  table.insert(__classes__, class)
+end
+
 --[[ Keyword setters ]]
 local function _private(method)
   return {
@@ -58,6 +66,7 @@ local function _rawset(method)
 end
 
 local keywords = {
+  __id__            = _private('__id__'),
   __mixin__         = _private('__mixin__'),
   __init__          = _rawset('__init__'),
 
@@ -240,6 +249,7 @@ local builder = {}
 
 function builder.classtable(name, super)
   local class = {
+    __id__    = _classid(),
     __super__ = super,
     inherit   = builder.inherit,
     new       = builder.new,
@@ -256,12 +266,15 @@ function builder.classtable(name, super)
     __newindex   = rawset,
     __index      = rawget,
   }
-  return smt(class, {
+  class = smt(class, {
     __newindex = _set_attribute,
     __index    = _get_attribute,
     __tostring = _class_string,
     __call     = _extend_class,
   })
+
+  _register_class(class)
+  return class
 end
 
 function builder.inherit(base_type, data)
@@ -299,6 +312,10 @@ local class = smt({}, {
   end
 })
 
+function class.get_by_id(id)
+  return __classes__[id]
+end
+
 function class.is_abstract(cls)
   if type(cls) ~= 'table' then return false end
   return next(cls.__abstract__) ~= nil
@@ -306,8 +323,14 @@ end
 
 function class.is_base_of(base, cls)
   if type(cls) ~= 'table' then return false end
-  if cls == base then return true end
-  return class.is_base_of(cls.__super__, base)
+  if cls.__id__ == nil then return false end
+  if cls.__id__ == base.__id__ then return true end
+  if cls.__mixin__ ~= nil then
+    for _,mixin in ipairs(cls.__mixin__) do
+      if class.is_base_of(base, mixin) then return true end
+    end
+  end
+  return class.is_base_of(base, cls.__super__)
 end
 
 function class.is_instance(instance, cls)
