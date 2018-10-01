@@ -175,7 +175,7 @@ function TestMeta:test_index()
   local inst = self.base:new(2, 3)
   local x = inst.x
   self:assert_equal(x, inst.x)
-  self:expect_failure(function() local z = inst.z end)
+  self:expect_failure(function() local _ = inst.z end)
 end
 
 
@@ -278,4 +278,76 @@ end
 function TestInheritance:test_derived_instance_is_instance_of_base_type()
   local derived = self.base:inherit {}
   self:assert(class.is_instance(derived:new(), self.base))
+end
+
+
+local TestMixin = TestCase:inherit 'Class Mixin'
+
+function TestMixin:setup()
+  self.base = class {
+    __init__ = function(inst, x, y)
+      inst.value = { x, y }
+    end,
+    sum = function(inst, oth)
+      inst.value[1] = inst.value[1] + oth[1]
+      inst.value[2] = inst.value[2] + oth[2]
+    end
+  }
+  self.operators = class {
+    sum = class.abstract_method(),
+    mul = class.abstract_method()
+  }
+  self.length = class {
+    len = function(inst)
+      return math.sqrt(inst.value[1] ^ 2 + inst.value[2] ^ 2)
+    end,
+  }
+  self.length.length = class.property {
+    get = self.length.len
+  }
+end
+
+function TestMixin:test_is_mixin_instance()
+  local derived = self.base:inherit { __mixin__ = { self.length } }
+  self:assert(class.is_instance(derived:new(), self.length))
+end
+
+function TestMixin:test_mixin_methods_can_be_called()
+  local derived = self.base:inherit { __mixin__ = { self.length } }
+  self:assert_equal(derived:new(4, 3):len(), 5)
+end
+
+function TestMixin:test_mixin_properties_are_available()
+  local derived = self.base:inherit { __mixin__ = { self.length } }
+  self:assert_equal(derived:new(4, 3).length, 5)
+end
+
+function TestMixin:test_abstract_mixin_must_be_implemented()
+  local derived = self.base:inherit { __mixin__ = { self.operators } }
+  self:expect_failure(function() derived:new() end)
+end
+
+function TestMixin:test_abstract_mixin_can_be_implemented()
+  local derived = self.base:inherit {
+    __mixin__ = { self.operators, self.length },
+
+    mul = function(inst, k)
+      inst.value[1] = inst.value[1] * k
+      inst.value[2] = inst.value[2] * k
+    end
+  }
+
+  local vec = derived:new(2, 1.5)
+  vec:mul(2)
+  self:assert_equal(vec.length, 5)
+end
+
+function TestMixin:test_mixin_statics_are_available()
+  local derived = self.base:inherit {
+    __mixin__ = {
+      class { static_var = 5 }
+    }
+  }
+  
+  self:assert_equal(derived:new().static_var, 5)
 end

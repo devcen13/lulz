@@ -58,7 +58,7 @@ local function _rawset(method)
 end
 
 local keywords = {
-  __mixin__         = _private('__mixin__'), -- reserved
+  __mixin__         = _private('__mixin__'),
   __init__          = _rawset('__init__'),
 
   __init_subclass__ = _rawset('__init_subclass__'),
@@ -138,6 +138,23 @@ local function _try_add_method(class, name, prop)
   return true
 end
 
+local function _add_mixin(class, mixin)
+  for name, prop in pairs(mixin.__abstract__) do
+    _try_add_abstract(class, name, prop)
+  end
+  for name, prop in pairs(mixin.__methods__) do
+    _try_add_method(class, name, prop)
+  end
+
+  for name, setter in pairs(mixin.__setters__) do
+    _try_add_property(class, name, {
+      __type__ = '__property__',
+      set = setter,
+      get = mixin.__getters__[name]
+    })
+  end
+end
+
 local function _set_attribute(class, k, v)
   if keywords[k] then
     return keywords[k].set(class, v)
@@ -167,14 +184,22 @@ local function _metatable(super)
     __newindex = function(inst, k, v)
       local setters = inst.__type__.__setters__
       if setters[k] then return setters[k](inst, v) end
+
       local static = inst.__type__.__static__
       if static[k] then static[k] = v; return end
+
       inst.__type__.__newindex(inst, k, v)
     end,
     __index    = function(inst, k)
       local getters = inst.__type__.__getters__
       if getters[k] then return getters[k](inst) end
+
       if inst.__type__[k] ~= nil then return inst.__type__[k] end
+      if inst.__type__.__mixin__ ~= nil then
+        for _,mixin in ipairs(inst.__type__.__mixin__) do
+          if mixin[k] ~= nil then return mixin[k] end
+        end
+      end
       return inst.__type__.__index(inst, k)
     end,
   }
@@ -192,8 +217,19 @@ local function _class_string(class)
   return 'class<' .. class.__name__ .. '>'
 end
 
+local function _add_mixins(class, mixins)
+  rawset(class, '__mixin__', mixins)
+  for _,mixin in ipairs(mixins or {}) do
+    _add_mixin(class, mixin)
+  end
+end
+
 local function _extend_class(class, data)
   data = type(data) == 'table' and data or {}
+  if data['__mixin__'] ~= nil then
+    _add_mixins(class, data['__mixin__'])
+    data['__mixin__'] = nil
+  end
   for k,v in pairs(data or {}) do
     class[k] = v
   end
