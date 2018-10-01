@@ -106,6 +106,89 @@ function TestUtils:test_zeroes()
   end
 end
 
+function TestUtils:test_any_empty()
+  self:assert_false(fn.any({}))
+  self:assert_false(fn.any(fn.id, {}))
+end
+
+function TestUtils:test_any_falses()
+  self:assert_false(fn.any({ false, false, false }))
+  self:assert_false(fn.any(fn.last, { false, false, false }))
+end
+
+function TestUtils:test_any_true()
+  self:assert(fn.any({ true, false, false }))
+  self:assert(fn.any(fn.last, { true, false, false }))
+end
+
+function TestUtils:test_any_iterator()
+  self:assert(fn.any(fn.filter(function(v) return v == 5 end, fn.range(10))))
+  self:assert_false(fn.any(fn.filter(function(v) return v == 50 end, fn.range(10))))
+end
+
+function TestUtils:test_any_is_lazy()
+  local i = 0
+  local pred = function(...)
+    i = i + 1
+    return fn.last(...)
+  end
+  self:assert(fn.any(pred, { true, false, false }))
+  self:assert_equal(i, 1)
+end
+
+function TestUtils:test_all_empty()
+  self:assert(fn.all({}))
+  self:assert(fn.all(fn.id, {}))
+end
+
+function TestUtils:test_all_falses()
+  self:assert_false(fn.all({ false, false, false }))
+  self:assert_false(fn.all(fn.last, { false, false, false }))
+end
+
+function TestUtils:test_all_one_true()
+  self:assert_false(fn.all({ true, false, false }))
+  self:assert_false(fn.all(fn.last, { true, false, false }))
+end
+
+function TestUtils:test_all_all_trues()
+  self:assert(fn.all({ true, true, true }))
+  self:assert(fn.all(fn.last, { true, true, true }))
+end
+
+function TestUtils:test_all_iterator()
+  self:assert(fn.all(function(v) return v > 0 end, fn.range(10)))
+  self:assert_false(fn.all(function(v) return v == 5 end, fn.range(10)))
+end
+
+function TestUtils:test_all_is_lazy()
+  local i = 0
+  local pred = function(...)
+    i = i + 1
+    return fn.last(...)
+  end
+  self:assert_false(fn.all(pred, { true, false, false }))
+  self:assert_equal(i, 2)
+end
+
+function TestUtils:test_count_length()
+  self:assert_equal(fn.count({ false, 1, 'a', 5 }), 4)
+end
+
+function TestUtils:test_count_with_predicate()
+  self:assert_equal(fn.count(function(_,v) return type(v) == 'number' end,
+                            { false, 1, 'a', 5 }), 2)
+end
+
+function TestUtils:test_count_iterator()
+  self:assert_equal(fn.count(fn.range(1000)), 1000)
+end
+
+function TestUtils:test_count_iterator_with_predicate()
+  self:assert_equal(fn.count(function(v) return v % 3 == 0 end,
+                            fn.range(1000)), 333)
+end
+
 function TestUtils:test_ones()
   local iters = 10000
   for i in fn.ones() do

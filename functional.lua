@@ -13,6 +13,11 @@ local function _id(x)
   return x
 end
 
+local function _last(...)
+  local values = { ... }
+  return values[#values]
+end
+
 local _range = generator {
   gen = function(self, start, stop, step)
     if stop == nil then
@@ -129,6 +134,36 @@ local _zip = generator {
   end
 }
 
+local function _any(predicate, iter)
+  if iter == nil then
+    iter = predicate
+    predicate = _last
+  end
+  for a,b,c,d,e,f in iterator(iter) do
+    if predicate(a,b,c,d,e,f) then return true end
+  end
+  return false
+end
+
+local function _all(predicate, iter)
+  if iter == nil then
+    iter = predicate
+    predicate = _last
+  end
+  for a,b,c,d,e,f in iterator(iter) do
+    if not predicate(a,b,c,d,e,f) then return false end
+  end
+  return true
+end
+
+local function _count(predicate, iter)
+  if iter == nil then
+    iter = predicate
+    predicate = function() return true end
+  end
+  return _foldl('+', _map(function(...) return predicate(...) and 1 or 0 end, iter), 0)
+end
+
 
 local _bind = function(func, ...) return binder:new(func, ...) end
 local functional = {
@@ -150,6 +185,12 @@ local functional = {
 
   zeroes = _bind(_xrepeat, 0),
   ones   = _bind(_xrepeat, 1),
+
+  any = _any,
+  all = _all,
+
+  last = _last,
+  count = _count
 }
 
 return functional
