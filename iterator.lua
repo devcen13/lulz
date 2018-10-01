@@ -20,6 +20,16 @@ iterator.ipairs = generator {
   end
 }
 
+iterator.values = generator {
+  gen = function(self, tbl)
+    for a,b,c,d,e,f in iterator(tbl) do
+      local values = { a,b,c,d,e,f }
+      self:yield(values[#values])
+    end
+  end
+}
+
+
 iterator.__class_call__ = function(_, iter)
   if class.is_instance(iter, iterator) then return iter end
   if class.is_instance(iter, iterable) then return iter:iter() end

@@ -58,8 +58,7 @@ local _filter = generator {
 
 local function _foldl(func, iter, accum)
   if type(func) == 'string' then func = op[func] end
-  for k,v in iterator(iter) do
-    if v == nil then v = k end
+  for v in iterator.values(iter) do
     if accum == nil then
       accum = v
     else
