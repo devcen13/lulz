@@ -1,6 +1,7 @@
 local utils = require 'lulz.utils'
 local class = require 'lulz.class'
 local op = require 'lulz.operators'
+local iterator  = require 'lulz.iterator'
 local generator = require 'lulz.generator'
 
 local sign = require('lulz.math').sign
@@ -17,7 +18,7 @@ local _range = generator {
     if stop == nil then
       if start == 0 then return end
       stop = start
-      start = 1
+      start = sign(stop)
     end
     if step == nil then step = sign(stop - start) end
 
@@ -39,7 +40,7 @@ end
 
 local _map = generator {
   gen = function(self, func, params)
-    for a,b,c,d,e,f in params do
+    for a,b,c,d,e,f in iterator(params) do
       self:yield(func(a,b,c,d,e,f))
     end
   end
@@ -47,7 +48,7 @@ local _map = generator {
 
 local _filter = generator {
   gen = function(self, func, params)
-    for a,b,c,d,e,f in params do
+    for a,b,c,d,e,f in iterator(params) do
       if func(a,b,c,d,e,f) then
         self:yield(a,b,c,d,e,f)
       end
@@ -55,9 +56,10 @@ local _filter = generator {
   end
 }
 
-local function _foldl(func, list, accum)
+local function _foldl(func, iter, accum)
   if type(func) == 'string' then func = op[func] end
-  for _,v in ipairs(list) do
+  for k,v in iterator(iter) do
+    if v == nil then v = k end
     if accum == nil then
       accum = v
     else
@@ -97,7 +99,7 @@ local _xrepeat = generator {
 local _take = generator {
   gen = function(self, count, iter)
     local i = 0
-    for a,b,c,d,e,f in iter do
+    for a,b,c,d,e,f in iterator(iter) do
       if i >= count then return end
       self:yield(a,b,c,d,e,f)
       i = i + 1
@@ -108,7 +110,7 @@ local _take = generator {
 local _skip = generator {
   gen = function(self, count, iter)
     local i = 0
-    for a,b,c,d,e,f in iter do
+    for a,b,c,d,e,f in iterator(iter) do
       if i >= count then
         self:yield(a,b,c,d,e,f)
       end

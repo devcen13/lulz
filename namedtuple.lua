@@ -9,7 +9,7 @@ end
 
 local function _tuple_tostring(inst)
   local name = inst.__type__.__name__ or 'tuple'
-  local values = str.join(', ', fn.map(function(k) return tostring(inst[k]) end, inst.__type__.__items__))
+  local values = str.join(', ', fn.map(function(_,k) return inst[k] end, inst.__type__.__items__))
   return name .. '<' .. values .. '>'
 end
 

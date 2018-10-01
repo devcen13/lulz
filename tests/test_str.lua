@@ -1,4 +1,6 @@
 local str = require 'lulz.str'
+local fn = require 'lulz.functional'
+
 local TestCase = require 'lulz.tests.testcase'
 
 
@@ -18,4 +20,8 @@ end
 
 function TestStrJoin:test_boolean_join()
   self:assert_equal(str.join(' ', {false, true}), 'false true')
+end
+
+function TestStrJoin:test_iterator_join()
+  self:assert_equal(str.join(' ', fn.range(3)), '1 2 3')
 end

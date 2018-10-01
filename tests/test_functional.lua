@@ -163,6 +163,29 @@ function TestFilter:test_filter_true()
   self:assert_equal(iters, 100)
 end
 
+function TestFilter:test_filter_table()
+  local iters = 0
+  for _ in fn.filter(function(_, i) return i % 2 == 0 end, { 0, 1, 2, 3, 4, 5, 6 }) do
+    iters = iters + 1
+  end
+  self:assert_equal(iters, 4)
+end
+
+function TestFilter:test_filter_table_by_key()
+  local iters = 0
+  local values = {
+    a = 1,
+    b = 2,
+    cc = 2,
+    ccc = 3,
+    cdc = 2
+  }
+  for _ in fn.filter(function(k, v) return #k == v end, values) do
+    iters = iters + 1
+  end
+  self:assert_equal(iters, 3)
+end
+
 function TestFilter:test_filter_false()
   local iters = 0
   for _ in fn.filter(function(_) return false end, fn.range(100)) do
@@ -183,13 +206,13 @@ end
 function TestFilter:test_filter_ipairs()
   local iters = 0
   local iprs = generator {
-    gen = function(self)
-      self:yield(1, 3)
-      self:yield(2, 3)
-      self:yield(3, 3)
-      self:yield(1, 3)
-      self:yield(5, 5)
-      self:yield(8, 8)
+    gen = function(inst)
+      inst:yield(1, 3)
+      inst:yield(2, 3)
+      inst:yield(3, 3)
+      inst:yield(1, 3)
+      inst:yield(5, 5)
+      inst:yield(8, 8)
     end
   }
   for i,v in fn.filter(function(i, v) return i == v end, iprs()) do
@@ -217,6 +240,21 @@ function TestMap:test_map_id()
     self:assert_equal(val, iters)
   end
   self:assert_equal(iters, 30)
+end
+
+function TestMap:test_map_table()
+  local iters = 0
+  local values = {
+    a = 1,
+    b = 2,
+    c = 3,
+    d = 4
+  }
+  for key,val in fn.map(function(k, _) return k,k end, values) do
+    iters = iters + 1
+    self:assert_equal(val, key)
+  end
+  self:assert_equal(iters, 4)
 end
 
 function TestMap:test_map_square()
