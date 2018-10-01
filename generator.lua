@@ -1,5 +1,5 @@
 local class = require 'lulz.class'
-local iterator = require 'lulz.iterator'
+local iterator = require 'lulz.private.iterator'
 
 local co_create, co_resume, co_yield = coroutine.create, coroutine.resume, coroutine.yield
 
@@ -11,9 +11,10 @@ local generator = iterator:inherit 'generator' {
   end,
   next = function(self)
     self._args = { co_resume(self._co, self, unpack(self._args)) }
+    if not self._args[1] then return nil end
     return self._args[2], self._args[3]
   end,
-  yield = function(self, ...)
+  yield = function(_, ...)
     co_yield(...)
   end,
 

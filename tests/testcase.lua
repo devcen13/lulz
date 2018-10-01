@@ -47,6 +47,11 @@ function TestCase:assert(cond, message)
   self:fail(message)
 end
 
+function TestCase:assert_false(cond, message)
+  if not cond then return end
+  self:fail(message)
+end
+
 function TestCase:assert_equal(actual, expected, message)
   if dict.equals(actual, expected) then return end
   self:fail('Actual:   ' .. dict.dump(actual))
