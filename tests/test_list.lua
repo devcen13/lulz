@@ -6,8 +6,44 @@ local iterator = require 'lulz.iterator'
 
 local TestCase = require 'lulz.tests.testcase'
 
---- @todo
--- local TestListUnbound = TestCase:inherit 'List Unbound Functions'
+
+local TestListUnbound = TestCase:inherit 'List Unbound Functions'
+
+function TestListUnbound:test_list_append()
+  local lst = { 2, 'a', 3, 78 }
+  list.append(lst, 42)
+  self:assert_equal(lst, { 2, 'a', 3, 78, 42 })
+end
+
+function TestListUnbound:test_list_extend_with_table()
+  local lst = { 2, 'a', 3, 78 }
+  list.extend(lst, { 42, 24, 'b' })
+  self:assert_equal(lst, { 2, 'a', 3, 78, 42, 24, 'b' })
+end
+
+function TestListUnbound:test_list_extend_with_list()
+  local lst = { 2, 'a', 3, 78 }
+  list.extend(lst, list { 42, 24, 'b' })
+  self:assert_equal(lst, { 2, 'a', 3, 78, 42, 24, 'b' })
+end
+
+function TestListUnbound:test_list_extend_with_itertator()
+  local lst = { 2, 'a', 3, 78 }
+  list.extend(lst, fn.take(2, fn.ones()))
+  self:assert_equal(lst, { 2, 'a', 3, 78, 1, 1 })
+end
+
+function TestListUnbound:test_list_shrink()
+  local lst = { 2, 'a', 3, 78 }
+  list.resize(lst, 2)
+  self:assert_equal(lst, { 2, 'a' })
+end
+
+function TestListUnbound:test_list_resize_with_value()
+  local lst = { 2, 'a', 3, 78 }
+  list.resize(lst, 6, 1)
+  self:assert_equal(lst, { 2, 'a', 3, 78, 1, 1 })
+end
 
 
 local TestListClass = TestCase:inherit 'List Class'

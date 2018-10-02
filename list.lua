@@ -46,16 +46,17 @@ function list:__class_call__(data)
 end
 
 --[[ Utils ]]
-function list.data(tbl)
+local function _list_data(tbl)
   if class.is_instance(tbl, list) then
     return tbl._values
   end
   return tbl
 end
 
+
 --[[ Iterators ]]
 function list.iter(tbl)
-  return iterator.ipairs(list.data(tbl))
+  return iterator.ipairs(_list_data(tbl))
 end
 
 function list.items(tbl)
@@ -64,18 +65,18 @@ end
 
 --[[ Modifiers ]]
 function list.append(tbl, value)
-  table.insert(list.data(tbl), value)
+  table.insert(_list_data(tbl), value)
 end
 
 function list.extend(tbl, iter)
-  local data = list.data(tbl)
+  local data = _list_data(tbl)
   for value in iterator.values(iter) do
     table.insert(data, value)
   end
 end
 
 function list.resize(tbl, size, value)
-  local data = list.data(tbl)
+  local data = _list_data(tbl)
   while #data > size do table.remove(data) end
   while #data < size do table.insert(data, value) end
 end
