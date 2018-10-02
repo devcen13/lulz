@@ -1,94 +1,72 @@
-local abs = math.abs
-local type, tostring = type, tostring
+local class = require 'lulz.class'
+local iterator = require 'lulz.iterator'
+local iterable = require 'lulz.iterable'
+local fn = require 'lulz.functional'
+
+local _dict = require 'lulz.private.dict'
 
 
-local function _compare_scalar(a, b, settings)
-  if type(a) == 'number' then return abs(a - b)  < (settings.eps or 1.e-6) end
-  return a == b
-end
+local dict = class 'dict' {
+  __mixin__ = { iterable },
 
-local function _compare_recursive(a, b, settings)
-  local type_a = type(a)
-  local type_b = type(b)
-  settings = settings or {}
+  override        = _dict.override,
+  add_keys        = _dict.add_keys,
+  clone_new_items = _dict.clone_new_items,
 
-  if type_a ~= type_b  then return false end
-  if (getmetatable(a) or {}).__eq then return a == b end
-  if type_a ~= 'table' then return _compare_scalar(a, b, settings) end
-
-  for k in pairs(a) do if b[k] == nil then return false end end
-  for k in pairs(b) do if a[k] == nil then return false end end
-  for k,v in pairs(a) do
-    if not _compare_recursive(v, b[k]) then return false end
-  end
-
-  return true
-end
-
-
-local function _dump_recursive(t)
-  if type(t) ~= 'table' then return tostring(t) end
-  local str = '{ '
-  local comma = ''
-  for k, v in pairs(t) do
-    str = str .. comma .. '[' .. _dump_recursive(k) .. '] = ' .. _dump_recursive(v)
-    comma = ', '
-  end
-  return str .. ' }'
-end
-
-
-local function _clone_recursive(t)
-  if type(t) ~= 'table' then return t end
-  local meta = getmetatable(t)
-  local target = {}
-  for k, v in pairs(t) do
-    if type(v) == 'table' then
-      target[k] = _clone_recursive(v)
-    else
-      target[k] = v
-    end
-  end
-  setmetatable(target, meta)
-  return target
-end
-
-
-local override = 0
-local add_keys = 1
-local clone_new_items = 2
-
-local function _extend_recursive(base, overrides, policy)
-  if type(base) ~= 'table' then return base end
-  if type(overrides) ~= 'table' then return base end
-  policy = policy ~= nil and policy or add_keys
-
-  for k, v in pairs(overrides) do
-    if type(v) == 'table' and type(base[k]) == 'table' then
-      _extend_recursive(base[k], v, policy)
-    else
-      if base[k] ~= nil or policy ~= override then
-        if policy == clone_new_items then
-          v = _clone_recursive(v)
-        end
-        base[k] = v
-      end
-    end
-  end
-
-  return base
-end
-
-
-local dict = {
-  equals = _compare_recursive,
-  dump   = _dump_recursive,
-  clone  = _clone_recursive,
-  extend = _extend_recursive,
-
-  override = override,
-  add_keys = add_keys,
-  clone_new_items = clone_new_items,
+  __init__ = function(self, values)
+    self._values = _dict.clone(values)
+  end,
 }
+
+
+function dict:__class_call__(data)
+  assert(self == dict)
+  local inst = dict:new()
+  inst._values = data
+  return inst
+end
+
+
+--[[ Utils ]]
+local function _dict_data(tbl)
+  if class.is_instance(tbl, dict) then
+    return tbl._values
+  end
+  return tbl
+end
+
+
+function dict.equals(a, b, settings)
+  return _dict.equals(_dict_data(a), _dict_data(b), settings)
+end
+
+function dict.dump(a)
+  return _dict.dump(_dict_data(a))
+end
+
+function dict.clone(tbl)
+  if class.is_instance(tbl, dict) then
+    return dict(_dict.clone(_dict_data(tbl)))
+  end
+  return _dict.clone(tbl)
+end
+
+function dict.extend(tbl, overrides, policy)
+  return _dict.extend(_dict_data(tbl), _dict_data(overrides), policy)
+end
+
+
+--[[ Iterators ]]
+function dict.iter(tbl)
+  return iterator.ipairs(_dict_data(tbl))
+end
+
+function dict.values(tbl)
+  return iterator.values(dict.iter(tbl))
+end
+
+function dict.keys(tbl)
+  return fn.map(function(k,_) return k end, dict.iter(tbl))
+end
 
 return dict

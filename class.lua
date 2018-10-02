@@ -1,5 +1,5 @@
 local lulz = require 'lulz'
-local dict = require 'lulz.dict'
+local dict = require 'lulz.private.dict'
 
 local clone, extend = dict.clone, dict.extend
 
@@ -58,7 +58,6 @@ end
 
 local function _rawset(method)
   return {
-    get = nil,
     set = function(class, value)
       rawset(class, method, value)
     end
