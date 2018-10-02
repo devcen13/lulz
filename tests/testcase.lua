@@ -99,7 +99,7 @@ function TestCase:run()
   local all = 0
   local passed = 0
   local warnings = 0
-  for testname, func in pairs(self.__methods__) do
+  for testname, func in pairs(self) do
     if type(func) == 'function' and testname:find('^test_') then
       local success, warns = self:run_test(testname, func)
       all = all + 1

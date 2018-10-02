@@ -24,11 +24,11 @@ local list = class "list" {
 
   __len__ = function(self) return #self._values end,
 
-  __index = function(self, k)
+  __index__ = function(self, k)
     if list_config.strict then _validate_index(self._values, k) end
     return self._values[k]
   end,
-  __newindex = function(self, k, v)
+  __newindex__ = function(self, k, v)
     if list_config.strict then _validate_index(self._values, k) end
     self._values[k] = v
   end

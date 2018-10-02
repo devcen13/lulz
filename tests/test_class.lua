@@ -48,8 +48,15 @@ end
 function TestClass:test_static_var()
   self:assert(self.base.static_var == 0)
   local inst = self.base:new(nil)
-  inst.static_var = 42
+  self.base.static_var = 42
   self:assert(self.base.static_var == 42, 'Static var not changed')
+  self:assert(inst.static_var == 42, 'Static var not accessable from instance')
+end
+
+function TestClass:test_static_var_not_changed_via_self()
+  local inst = self.base:new(nil)
+  inst.static_var = 42
+  self:assert(self.base.static_var ~= 42, 'Static var changed')
   self:assert(inst.static_var == 42, 'Static var not accessable from instance')
 end
 
@@ -120,8 +127,8 @@ function TestMeta:setup()
     __lt__   = function(this, value) return #this < #value end,
     __le__   = function(this, value) return #this <= #value end,
 
-    __newindex = function() error('invalid attribute') end,
-    __index = function() error('invalid attribute') end
+    __newindex__ = function() error('invalid attribute') end,
+    __index__ = function() error('invalid attribute') end
   }
 end
 
@@ -326,28 +333,41 @@ function TestMixin:setup()
 end
 
 function TestMixin:test_is_mixin_instance()
-  local derived = self.base:inherit { __mixin__ = { self.length } }
+  local derived = self.base:inherit { 
+    __mixin__ = { self.length },
+    __init__ = function(...) return self.base.__init__(...) end
+  }
   self:assert(class.is_instance(derived:new(), self.length))
 end
 
 function TestMixin:test_mixin_methods_can_be_called()
-  local derived = self.base:inherit { __mixin__ = { self.length } }
+  local derived = self.base:inherit {
+    __mixin__ = { self.length },
+    __init__ = function(...) return self.base.__init__(...) end
+  }
   self:assert_equal(derived:new(4, 3):len(), 5)
 end
 
 function TestMixin:test_mixin_properties_are_available()
-  local derived = self.base:inherit { __mixin__ = { self.length } }
+  local derived = self.base:inherit {
+    __mixin__ = { self.length },
+    __init__ = function(...) return self.base.__init__(...) end
+  }
   self:assert_equal(derived:new(4, 3).length, 5)
 end
 
 function TestMixin:test_abstract_mixin_must_be_implemented()
-  local derived = self.base:inherit { __mixin__ = { self.operators } }
+  local derived = self.base:inherit {
+    __mixin__ = { self.operators },
+    __init__ = function(...) return self.base.__init__(...) end
+  }
   self:expect_failure(function() derived:new() end)
 end
 
 function TestMixin:test_abstract_mixin_can_be_implemented()
   local derived = self.base:inherit {
     __mixin__ = { self.operators, self.length },
+    __init__ = function(...) return self.base.__init__(...) end,
 
     mul = function(inst, k)
       inst.value[1] = inst.value[1] * k

@@ -6,6 +6,7 @@ local clone, extend = dict.clone, dict.extend
 local error = error
 local smt, gmt = setmetatable, getmetatable
 
+
 --[[ Classes registry ]]
 local __classes__ = {}
 
@@ -21,6 +22,7 @@ local function _register_class(class)
   table.insert(__classes__, class)
 end
 
+
 --[[ Keyword setters ]]
 local function _private(method)
   return {
@@ -33,10 +35,9 @@ end
 
 local function _metamethod(method)
   return {
-    get = function(class) return class.__meta__[method] end, -- rawget must work!
     set = function(class, value)
       assert(type(value) == 'function', 'Metamethods must be functions.')
-      class.__meta__[method] = value
+      class[method] = value
     end
   }
 end
@@ -56,32 +57,19 @@ local function _classmeta(method)
   }
 end
 
-local function _rawset(method)
-  return {
-    set = function(class, value)
-      rawset(class, method, value)
-    end
-  }
-end
-
 local keywords = {
-  __id__            = _private('__id__'),
-  __mixin__         = _private('__mixin__'),
-  __init__          = _rawset('__init__'),
-
-  __init_subclass__ = _rawset('__init_subclass__'),
-  __class_call__    = _classmeta('__call'),
-
-  __newindex = _rawset('__newindex'),
-  __index    = _rawset('__index'),
-
+  __id__       = _private('__id__'),
+  __mixin__    = _private('__mixin__'),
   __name__     = _private('__name__'),
-  __meta__     = _private('__meta__'),
-  __static__   = _private('__static__'),
   __getters__  = _private('__getters__'),
   __setters__  = _private('__setters__'),
-  __methods__  = _private('__methods__'),
   __abstract__ = _private('__abstract__'),
+  __newindex   = _private('__newindex'),
+  __index      = _private('__index'),
+  new          = _private('new'),
+  inherit      = _private('inherit'),
+
+  __class_call__ = _classmeta('__call'),
 
   __call__  = _metamethod('__call'),
   __str__   = _metamethod('__tostring'),
@@ -104,30 +92,43 @@ local keywords = {
   __le__ = _metamethod('__le'),
 }
 
---[[ Set attribute ]]
+
+--[[ Abstract ]]
 local function _try_add_abstract(class, name, prop)
   if type(prop) ~= 'table' or prop.__type__ ~= '__abstract__' then return false end
   -- Check if already exists
   if prop.__expect__ == '__property__' and class.__getters__[name] or class.__setters__[name] then
     return true
   end
-  if prop.__expect__ == '__method__' and class.__methods__[name] then
+  if prop.__expect__ == '__method__' and class[name] ~= nil then
+    assert(type(class[name]) == 'function')
     return true
   end
 
+  rawset(class, '__abstract__', class.__abstract__ or {})
   class.__abstract__[name] = prop
   return true
 end
 
+local function _try_resolve_abstract(class, name, type)
+  if rawget(class, '__abstract__') == nil then return end
+  local abstract = class.__abstract__[name]
+  if abstract == nil then return end
+
+  if abstract.__expect__ ~= type then
+    error('Abstract type mismatch. Expected ' .. abstract.__expect__ .. '. Got ' .. type)
+  end
+  class.__abstract__[name] = nil
+  if (next(class.__abstract__) == nil) then
+    class.__abstract__ = nil
+  end
+end
+
+
+--[[ Set attribute ]]
 local function _try_add_property(class, name, prop)
   if type(prop) ~= 'table' or prop.__type__ ~= '__property__' then return false end
-  local abstract = class.__abstract__[name]
-  if abstract then
-    if abstract.__expect__ ~= '__property__' then
-      error('Abstract type mismatch. Expected ' .. abstract.__expect__ .. '. Got __property__')
-    end
-    class.__abstract__[name] = nil
-  end
+  _try_resolve_abstract(class, name, '__property__')
   class.__getters__[name] = prop.get or function() error('Attempt to set readonly property ' .. name) end
   class.__setters__[name] = prop.set or function() error('Attempt to get private property ' .. name) end
   return true
@@ -135,22 +136,28 @@ end
 
 local function _try_add_method(class, name, prop)
   if type(prop) ~= 'function' then return false end
-  local abstract = class.__abstract__[name]
-  if abstract then
-    if abstract.__expect__ ~= '__method__' then
-      error('Abstract type mismatch. Expected ' .. abstract.__expect__ .. '. Got __method__')
-    end
-    class.__abstract__[name] = nil
-  end
-  class.__methods__[name] = prop
+  _try_resolve_abstract(class, name, '__method__')
+  rawset(class, name, prop)
   return true
 end
 
+local function _add_attribute(class, k, v)
+  if keywords[k] then
+    return keywords[k].set(class, v)
+  end
+  if _try_add_abstract(class, k, v) or
+     _try_add_property(class, k, v) or
+     _try_add_method  (class, k, v) then return end
+  rawset(class, k, v)
+end
+
+
+--[[ Mixin ]]
 local function _add_mixin(class, mixin)
-  for name, prop in pairs(mixin.__abstract__) do
+  for name, prop in pairs(mixin.__abstract__ or {}) do
     _try_add_abstract(class, name, prop)
   end
-  for name, prop in pairs(mixin.__methods__) do
+  for name, prop in pairs(mixin) do
     _try_add_method(class, name, prop)
   end
 
@@ -163,73 +170,38 @@ local function _add_mixin(class, mixin)
   end
 end
 
-local function _set_attribute(class, k, v)
-  if keywords[k] then
-    return keywords[k].set(class, v)
-  end
-  if _try_add_abstract(class, k, v) or
-     _try_add_property(class, k, v) or
-     _try_add_method  (class, k, v) then return end
-  rawset(class.__static__, k, v)
-end
-
---[[ Get attribute ]]
-local function _get_attribute(class, key)
-  if keywords[key] and keywords[key].get then
-    return keywords[key].get(class)
-  end
-
-  if class.__methods__[key] then return class.__methods__[key]   end
-  if class.__static__[key]  then return class.__static__[key]    end
-
-  local super = rawget(class, '__super__')
-  if super then return super[key]     end
-end
-
---[[ Class construction ]]
-local function _metatable(super)
-  return super and clone(super.__meta__) or {
-    __newindex = function(inst, k, v)
-      local setters = inst.__type__.__setters__
-      if setters[k] then return setters[k](inst, v) end
-
-      local static = inst.__type__.__static__
-      if static[k] then static[k] = v; return end
-
-      inst.__type__.__newindex(inst, k, v)
-    end,
-    __index    = function(inst, k)
-      local getters = inst.__type__.__getters__
-      if getters[k] then return getters[k](inst) end
-
-      if inst.__type__[k] ~= nil then return inst.__type__[k] end
-      if inst.__type__.__mixin__ ~= nil then
-        for _,mixin in ipairs(inst.__type__.__mixin__) do
-          if mixin[k] ~= nil then return mixin[k] end
-        end
-      end
-      return inst.__type__.__index(inst, k)
-    end,
-  }
-end
-
-local function _statictable(super)
-  local static_meta = {
-    __newindex = super and super.__static__ or function() error('Statics must be declared in class data block') end
-  }
-
-  return smt({}, static_meta)
-end
-
-local function _class_string(class)
-  return 'class<' .. class.__name__ .. '>'
-end
-
 local function _add_mixins(class, mixins)
   rawset(class, '__mixin__', mixins)
   for _,mixin in ipairs(mixins or {}) do
     _add_mixin(class, mixin)
   end
+end
+
+
+--[[ Class get/set ]]
+local function _get_attribute(inst, k)
+  local getters = inst.__type__.__getters__
+  if getters[k] then return getters[k](inst) end
+
+  if rawget(inst.__type__, k) ~= nil then return inst.__type__[k] end
+  if inst.__type__.__mixin__ ~= nil then
+    for _,mixin in ipairs(inst.__type__.__mixin__) do
+      if mixin[k] ~= nil then return mixin[k] end
+    end
+  end
+  return inst.__type__.__index__(inst, k)
+end
+
+local function _set_attribute(inst, k, v)
+  local setters = inst.__type__.__setters__
+  if setters[k] then return setters[k](inst, v) end
+  return inst.__type__.__newindex__(inst, k, v)
+end
+
+
+-- [[ Builder utils ]]
+local function _class_string(class)
+  return 'class<' .. class.__name__ .. '>'
 end
 
 local function _extend_class(class, data)
@@ -244,30 +216,37 @@ local function _extend_class(class, data)
   return class
 end
 
+
+--[[ Builder ]]
 local builder = {}
 
 function builder.classtable(name, super)
   local class = {
     __id__    = _classid(),
     __super__ = super,
+
     inherit   = builder.inherit,
     new       = builder.new,
 
-    __init__ = function(...) super.__init__(...) end,
+    __index    = _get_attribute,
+    __newindex = _set_attribute,
 
     __name__     = name,
-    __meta__     = _metatable(super),
-    __static__   = _statictable(super),
-    __abstract__ = super and clone(super.__abstract__) or {},
-    __methods__  = super and clone(super.__methods__)  or {},
+    __abstract__ = super and clone(super.__abstract__),
     __getters__  = super and clone(super.__getters__)  or {},
     __setters__  = super and clone(super.__setters__)  or {},
-    __newindex   = rawset,
-    __index      = rawget,
+
+    __index__ = rawget,
+    __newindex__ = rawset,
   }
+
+  for key, prop in pairs(super or {}) do
+    _try_add_method(class, key, prop)
+  end
+
   class = smt(class, {
-    __newindex = _set_attribute,
-    __index    = _get_attribute,
+    __index    = super,
+    __newindex = _add_attribute,
     __tostring = _class_string,
     __call     = _extend_class,
   })
@@ -287,11 +266,11 @@ function builder.inherit(base_type, data)
 end
 
 function builder.new(cls, ...)
-  if next(cls.__abstract__) then
+  if rawget(cls, '__abstract__') ~= nil then
     error('Cannot instantiate abstract class ' .. cls.__name__)
   end
-  local instance = smt({}, cls.__meta__)
-  rawset(instance, '__type__', cls)
+  local instance = smt({ __type__ = cls }, cls)
+
   local init = rawget(cls, '__init__')
   if init then init(instance, ...) end
   return instance
@@ -317,7 +296,7 @@ end
 
 function class.is_abstract(cls)
   if type(cls) ~= 'table' then return false end
-  return next(cls.__abstract__) ~= nil
+  return rawget(cls, '__abstract__') ~= nil
 end
 
 function class.is_base_of(base, cls)
