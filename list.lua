@@ -1,0 +1,83 @@
+local class = require 'lulz.class'
+local iterable = require 'lulz.iterable'
+local iterator = require 'lulz.iterator'
+local dict = require 'lulz.dict'
+
+
+local list_config = {
+  strict = false
+}
+
+local function _validate_index(tbl, i)
+  if type(i) ~= 'number' then error('list index is not a number') end
+  if i <= 0 or i > #tbl then error('list index out of range') end
+end
+
+
+local list = class "list" {
+  __mixin__ = { iterable },
+
+  __init__ = function(self, data)
+    rawset(self, '_values', {})
+    self:extend(data)
+  end,
+
+  __len__ = function(self) return #self._values end,
+
+  __index = function(self, k)
+    if list_config.strict then _validate_index(self._values, k) end
+    return self._values[k]
+  end,
+  __newindex = function(self, k, v)
+    if list_config.strict then _validate_index(self._values, k) end
+    self._values[k] = v
+  end
+}
+
+function list.configure(cfg)
+  dict.extend(list_config, cfg)
+end
+
+function list:__class_call__(data)
+  assert(self == list)
+  local lst = list:new()
+  lst._values = data
+  return lst
+end
+
+--[[ Utils ]]
+function list.data(tbl)
+  if class.is_instance(tbl, list) then
+    return tbl._values
+  end
+  return tbl
+end
+
+--[[ Iterators ]]
+function list.iter(tbl)
+  return iterator.ipairs(list.data(tbl))
+end
+
+function list.items(tbl)
+  return iterator.values(list.iter(tbl))
+end
+
+--[[ Modifiers ]]
+function list.append(tbl, value)
+  table.insert(list.data(tbl), value)
+end
+
+function list.extend(tbl, iter)
+  local data = list.data(tbl)
+  for value in iterator.values(iter) do
+    table.insert(data, value)
+  end
+end
+
+function list.resize(tbl, size, value)
+  local data = list.data(tbl)
+  while #data > size do table.remove(data) end
+  while #data < size do table.insert(data, value) end
+end
+
+return list
