@@ -1,6 +1,6 @@
 local class = require 'lulz.class'
 local iterator = require 'lulz.private.iterator'
-local iterable = require 'lulz.private.iterable'
+local iterable = require 'lulz.iterable'
 local generator = require 'lulz.generator'
 
 
