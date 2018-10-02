@@ -291,7 +291,7 @@ function builder.new(cls, ...)
   if next(cls.__abstract__) then
     error('Cannot instantiate abstract class ' .. cls.__name__)
   end
-  local instance = smt(clone(cls.__methods__), cls.__meta__)
+  local instance = smt({}, cls.__meta__)
   rawset(instance, '__type__', cls)
   local init = rawget(cls, '__init__')
   if init then init(instance, ...) end
