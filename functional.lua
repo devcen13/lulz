@@ -111,6 +111,29 @@ local _take = generator {
   end
 }
 
+local _take_while = generator {
+  gen = function(self, predicate, iter)
+    for a,b,c,d,e,f in iterator(iter) do
+      if not predicate(a,b,c,d,e,f) then return end
+      self:yield(a,b,c,d,e,f)
+    end
+  end
+}
+
+local _skip_while = generator {
+  gen = function(self, predicate, iter)
+    local first_found = false
+    for a,b,c,d,e,f in iterator(iter) do
+      if not first_found then
+        first_found = not predicate(a,b,c,d,e,f)
+      end
+      if first_found then
+        self:yield(a,b,c,d,e,f)
+      end
+    end
+  end
+}
+
 local _skip = generator {
   gen = function(self, count, iter)
     local i = 0
@@ -182,6 +205,9 @@ local functional = {
   xrepeat = _xrepeat,
   take    = _take,
   skip    = _skip,
+
+  take_while = _take_while,
+  skip_while = _skip_while,
 
   zeroes = _bind(_xrepeat, 0),
   ones   = _bind(_xrepeat, 1),

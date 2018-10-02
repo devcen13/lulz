@@ -227,6 +227,56 @@ function TestUtils:test_zip_equal()
   self:assert_equal(counter, 5)
 end
 
+function TestUtils:test_skip_while_empty()
+  self:assert_equal(fn.count(
+                      fn.skip_while(function(x) return x > 0 end, fn.range(100))),
+                    0)
+end
+
+function TestUtils:test_skip_while_none()
+  self:assert_equal(fn.count(
+                      fn.skip_while(function(x) return x < 0 end, fn.range(100))),
+                    100)
+end
+
+function TestUtils:test_skip_while_part()
+  self:assert_equal(fn.count(
+                      fn.skip_while(function(x) return x <= 50 end, fn.range(100))),
+                    50)
+end
+
+function TestUtils:test_skip_while_table()
+  self:assert_equal(fn.count(
+                      fn.skip_while(function(_, x) return x <= 5 end,
+                        { 2, 3, 8, 5, 1, 3, 1 })),
+                    5)
+end
+
+function TestUtils:test_take_while_empty()
+  self:assert_equal(fn.count(
+                      fn.take_while(function(x) return x > 50 end, fn.range(100))),
+                    0)
+end
+
+function TestUtils:test_take_while_none()
+  self:assert_equal(fn.count(
+                      fn.take_while(function(x) return x > 0 end, fn.range(100))),
+                    100)
+end
+
+function TestUtils:test_take_while_part()
+  self:assert_equal(fn.count(
+                      fn.take_while(function(x) return x <= 50 end, fn.range(100))),
+                    50)
+end
+
+function TestUtils:test_take_while_table()
+  self:assert_equal(fn.count(
+                      fn.take_while(function(_, x) return x <= 5 end,
+                        { 2, 3, 8, 5, 1, 3, 1 })),
+                    2)
+end
+
 
 local TestFilter = TestCase:inherit 'Functional Filter'
 
