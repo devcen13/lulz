@@ -8,6 +8,7 @@ require 'lulz.tests.test_str'
 require 'lulz.tests.test_namedtuple'
 require 'lulz.tests.test_generator'
 require 'lulz.tests.test_list'
+require 'lulz.tests.test_math'
 
 
 tests:run_all_tests()
