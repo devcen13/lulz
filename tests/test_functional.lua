@@ -1,7 +1,7 @@
 local generator = require 'lulz.generator'
 local fn = require 'lulz.functional'
 
-local TestCase = require 'lulz.tests.testcase'
+local TestCase = require 'lulz.testcase'
 
 
 local TestBind = TestCase:inherit 'Functional Bind'

@@ -1,6 +1,6 @@
 local class = require 'lulz.class'
 local lmath = require 'lulz.math'
-local TestCase = require 'lulz.tests.testcase'
+local TestCase = require 'lulz.testcase'
 
 local vec2 = lmath.vec2
 

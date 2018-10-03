@@ -1,4 +1,4 @@
-local tests = require 'lulz.tests.testcase'
+local tests = require 'lulz.testcase'
 
 
 require 'lulz.tests.test_utils'

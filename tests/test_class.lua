@@ -1,5 +1,5 @@
 local class = require 'lulz.class'
-local TestCase = require 'lulz.tests.testcase'
+local TestCase = require 'lulz.testcase'
 
 
 local TestClass = TestCase:inherit 'Class'
@@ -333,7 +333,7 @@ function TestMixin:setup()
 end
 
 function TestMixin:test_is_mixin_instance()
-  local derived = self.base:inherit { 
+  local derived = self.base:inherit {
     __mixin__ = { self.length },
     __init__ = function(...) return self.base.__init__(...) end
   }

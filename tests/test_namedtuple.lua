@@ -1,5 +1,5 @@
 local namedtuple = require 'lulz.namedtuple'
-local TestCase = require 'lulz.tests.testcase'
+local TestCase = require 'lulz.testcase'
 
 
 local TestNamedTuple = TestCase:inherit 'Named Tuple'

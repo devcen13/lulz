@@ -1,5 +1,5 @@
 local generator = require 'lulz.generator'
-local TestCase = require 'lulz.tests.testcase'
+local TestCase = require 'lulz.testcase'
 
 local TestGenerator = TestCase:inherit 'Generators'
 
@@ -17,7 +17,7 @@ end
 
 function TestGenerator:test_single_value_generator()
   local gen = generator {
-    gen = function(self) self:yield(42) end
+    gen = function(inst) inst:yield(42) end
   }
 
   local counter = 0
@@ -31,10 +31,10 @@ end
 
 function TestGenerator:test_range_generator()
   local range = generator {
-    gen = function(self)
+    gen = function(inst)
       local i = 0
       while i < 10 do
-        self:yield(i)
+        inst:yield(i)
         i = i+1
       end
     end
@@ -50,10 +50,10 @@ end
 
 function TestGenerator:test_generator_with_args()
   local range = generator {
-    gen = function(self, bound)
+    gen = function(inst, bound)
       local i = 0
       while i < bound do
-        self:yield(i)
+        inst:yield(i)
         i = i+1
       end
     end

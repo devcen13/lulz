@@ -1,5 +1,5 @@
 local utils = require 'lulz.private.utils'
-local TestCase = require 'lulz.tests.testcase'
+local TestCase = require 'lulz.testcase'
 
 
 local TestUtilsEqual = TestCase:inherit 'Utils Equals'

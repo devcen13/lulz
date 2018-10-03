@@ -4,7 +4,7 @@ local class = require 'lulz.class'
 local iterable = require 'lulz.iterable'
 local iterator = require 'lulz.iterator'
 
-local TestCase = require 'lulz.tests.testcase'
+local TestCase = require 'lulz.testcase'
 
 
 local TestListUnbound = TestCase:inherit 'List Unbound Functions'
