@@ -3,19 +3,26 @@ local iterator = require 'lulz.iterator'
 local iterable = require 'lulz.iterable'
 local fn = require 'lulz.functional'
 
-local _dict = require 'lulz.private.dict'
+local utils = require 'lulz.private.utils'
 
 
 local dict = class 'dict' {
   __mixin__ = { iterable },
 
-  override        = _dict.override,
-  add_keys        = _dict.add_keys,
-  clone_new_items = _dict.clone_new_items,
+  size = class.property {
+    get = function(self) return fn.count(self._values) end
+  },
 
   __init__ = function(self, values)
-    self._values = _dict.clone(values)
+    self._values = utils.clone(values)
   end,
+
+  __index__ = function(self, k)
+    return self._values[k]
+  end,
+  __newindex__ = function(self, k, v)
+    self._values[k] = v
+  end
 }
 
 
@@ -37,22 +44,26 @@ end
 
 
 function dict.equals(a, b, settings)
-  return _dict.equals(_dict_data(a), _dict_data(b), settings)
+  return utils.equals(_dict_data(a), _dict_data(b), settings)
 end
 
 function dict.dump(a)
-  return _dict.dump(_dict_data(a))
+  return utils.dump(_dict_data(a))
 end
 
 function dict.clone(tbl)
   if class.is_instance(tbl, dict) then
-    return dict(_dict.clone(_dict_data(tbl)))
+    return dict(utils.clone(_dict_data(tbl)))
   end
-  return _dict.clone(tbl)
+  return utils.clone(tbl)
 end
 
-function dict.extend(tbl, overrides, policy)
-  return _dict.extend(_dict_data(tbl), _dict_data(overrides), policy)
+function dict.extend(tbl, overrides)
+  return utils.extend(_dict_data(tbl), _dict_data(overrides))
+end
+
+function dict.override(tbl, overrides)
+  return utils.override(_dict_data(tbl), _dict_data(overrides))
 end
 
 

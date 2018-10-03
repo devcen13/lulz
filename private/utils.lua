@@ -56,7 +56,6 @@ end
 
 local override = 0
 local add_keys = 1
-local clone_new_items = 2
 
 local function _extend_recursive(base, overrides, policy)
   if type(base) ~= 'table' then return base end
@@ -68,9 +67,6 @@ local function _extend_recursive(base, overrides, policy)
       _extend_recursive(base[k], v, policy)
     else
       if base[k] ~= nil or policy ~= override then
-        if policy == clone_new_items then
-          v = _clone_recursive(v)
-        end
         base[k] = v
       end
     end
@@ -85,10 +81,7 @@ local dict = {
   dump   = _dump_recursive,
   clone  = _clone_recursive,
   extend = _extend_recursive,
-
-  override = override,
-  add_keys = add_keys,
-  clone_new_items = clone_new_items,
+  override = function(a, b) return _extend_recursive(a, b, override) end
 }
 
 return dict
