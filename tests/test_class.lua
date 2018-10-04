@@ -111,24 +111,24 @@ function TestMeta:setup()
 
     __class_call__ = function(cls, ...) return cls:new(...) end,
 
-    __str__   = function(this) return '{ ' .. this.x .. ', ' .. this.y .. ' }' end,
-    __len__   = function(this) return math.sqrt(this.x^2 + this.y^2) end,
+    __tostring = function(this) return '{ ' .. this.x .. ', ' .. this.y .. ' }' end,
 
-    __unm__    = function(this) return this.__type__:new(-this.x, -this.y) end,
-    __add__    = function(this, value) return this.__type__:new(this.x + value.x, this.y + value.y) end,
-    __sub__    = function(this, value) return this.__type__:new(this.x - value.x, this.y - value.y) end,
-    __mul__    = function(this, value) return this.__type__:new(this.x * value, this.y * value) end,
-    __div__    = function(this, value) return this.__type__:new(this.x / value, this.y / value) end,
-    __mod__    = function(this, value) return this.__type__:new(this.x % value, this.y % value) end,
-    __pow__    = function(this, value) return this.__type__:new(this.x ^ value, this.y ^ value) end,
-    __concat__ = function(this, value) return this + value end,
+    __len    = function(this) return math.sqrt(this.x^2 + this.y^2) end,
+    __unm    = function(this) return this.__type__:new(-this.x, -this.y) end,
+    __add    = function(this, value) return this.__type__:new(this.x + value.x, this.y + value.y) end,
+    __sub    = function(this, value) return this.__type__:new(this.x - value.x, this.y - value.y) end,
+    __mul    = function(this, value) return this.__type__:new(this.x * value, this.y * value) end,
+    __div    = function(this, value) return this.__type__:new(this.x / value, this.y / value) end,
+    __mod    = function(this, value) return this.__type__:new(this.x % value, this.y % value) end,
+    __pow    = function(this, value) return this.__type__:new(this.x ^ value, this.y ^ value) end,
+    __concat = function(this, value) return this + value end,
 
-    __eq__   = function(this, value) return this.x == value.x and this.y == value.y end,
-    __lt__   = function(this, value) return #this < #value end,
-    __le__   = function(this, value) return #this <= #value end,
+    __eq = function(this, value) return this.x == value.x and this.y == value.y end,
+    __lt = function(this, value) return #this < #value end,
+    __le = function(this, value) return #this <= #value end,
 
-    __newindex__ = function() error('invalid attribute') end,
-    __index__ = function() error('invalid attribute') end
+    __set = function() error('invalid attribute') end,
+    __get = function() error('invalid attribute') end
   }
 end
 

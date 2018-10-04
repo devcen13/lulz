@@ -17,10 +17,10 @@ local dict = class 'dict' {
     self._values = utils.clone(values)
   end,
 
-  __index__ = function(self, k)
+  __get = function(self, k)
     return self._values[k]
   end,
-  __newindex__ = function(self, k, v)
+  __set = function(self, k, v)
     self._values[k] = v
   end
 }

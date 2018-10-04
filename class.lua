@@ -37,7 +37,7 @@ local function _metamethod(method)
   return {
     set = function(class, value)
       assert(type(value) == 'function', 'Metamethods must be functions.')
-      class[method] = value
+      rawset(class, method, value)
     end
   }
 end
@@ -64,32 +64,15 @@ local keywords = {
   __getters__  = _private('__getters__'),
   __setters__  = _private('__setters__'),
   __abstract__ = _private('__abstract__'),
-  __newindex   = _private('__newindex'),
   __index      = _private('__index'),
+  __newindex   = _private('__newindex'),
   new          = _private('new'),
   inherit      = _private('inherit'),
 
   __class_call__ = _classmeta('__call'),
 
-  __call__  = _metamethod('__call'),
-  __str__   = _metamethod('__tostring'),
-  __len__   = _metamethod('__len'),
-  __iter__  = _metamethod('__ipairs'),
-  __items__ = _metamethod('__pairs'),
-  __del__   = _metamethod('__gc'),
-
-  __unm__    = _metamethod('__unm'),
-  __add__    = _metamethod('__add'),
-  __sub__    = _metamethod('__sub'),
-  __mul__    = _metamethod('__mul'),
-  __div__    = _metamethod('__div'),
-  __mod__    = _metamethod('__mod'),
-  __pow__    = _metamethod('__pow'),
-  __concat__ = _metamethod('__concat'),
-
-  __eq__ = _metamethod('__eq'),
-  __lt__ = _metamethod('__lt'),
-  __le__ = _metamethod('__le'),
+  __set   = _metamethod('__set'),
+  __get   = _metamethod('__get')
 }
 
 
@@ -189,13 +172,13 @@ local function _get_attribute(inst, k)
       if mixin[k] ~= nil then return mixin[k] end
     end
   end
-  return inst.__type__.__index__(inst, k)
+  return inst.__type__.__get(inst, k)
 end
 
 local function _set_attribute(inst, k, v)
   local setters = inst.__type__.__setters__
   if setters[k] then return setters[k](inst, v) end
-  return inst.__type__.__newindex__(inst, k, v)
+  return inst.__type__.__set(inst, k, v)
 end
 
 
@@ -236,8 +219,8 @@ function builder.classtable(name, super)
     __getters__  = super and clone(super.__getters__)  or {},
     __setters__  = super and clone(super.__setters__)  or {},
 
-    __index__ = rawget,
-    __newindex__ = rawset,
+    __get = rawget,
+    __set = rawset,
   }
 
   for key, prop in pairs(super or {}) do

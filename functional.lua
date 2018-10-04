@@ -79,7 +79,7 @@ local binder = class {
     self._func = func
     self._params = { ... }
   end,
-  __call__ = function(self, ...)
+  __call = function(self, ...)
     return self._func(self:_build_params(...))
   end
 }

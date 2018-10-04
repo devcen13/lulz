@@ -22,13 +22,16 @@ local list = class "list" {
     self:extend(data)
   end,
 
-  __len__ = function(self) return #self._values end,
+  __len = function(self) return #self._values end,
+  size = class.property {
+    get = function(self) return #self._values end,
+  },
 
-  __index__ = function(self, k)
+  __get = function(self, k)
     if list_config.strict then _validate_index(self._values, k) end
     return self._values[k]
   end,
-  __newindex__ = function(self, k, v)
+  __set = function(self, k, v)
     if list_config.strict then _validate_index(self._values, k) end
     self._values[k] = v
   end

@@ -3,7 +3,7 @@ local class = require 'lulz.class'
 local iterator = class 'iterator' {
   next = class.abstract_method(),
 
-  __call__ = function(self, ...)
+  __call = function(self, ...)
     return self:next(...)
   end
 }

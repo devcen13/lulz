@@ -3,14 +3,14 @@ local class = require 'lulz.class'
 
 
 local vec_base = class 'vec_base' {
-  __index__ = function(self, k)
+  __get = function(self, k)
     return self._data[k]
   end,
-  __newindex__ = function(self, k, v)
+  __set = function(self, k, v)
     self._data[k] = v
   end,
 
-  __str__ = function(self)
+  __tostring = function(self)
     return self.__type__.__name__ .. ' ' .. utils.dump(self._data)
   end,
 }
@@ -37,7 +37,7 @@ function vec_base.dot2(a, b)
   return sum
 end
 
-function vec_base.__unm__(a)
+function vec_base.__unm(a)
   assert(class.is_instance(a, vec_base))
   local result = {}
   for i = 1,a.dimension do
@@ -46,7 +46,7 @@ function vec_base.__unm__(a)
   return a.__type__:new(result)
 end
 
-function vec_base.__add__(a, b)
+function vec_base.__add(a, b)
   assert(class.is_instance(a, vec_base))
   assert(class.is_instance(b, vec_base))
   assert(a.dimension == b.dimension)
@@ -57,7 +57,7 @@ function vec_base.__add__(a, b)
   return a.__type__:new(result)
 end
 
-function vec_base.__sub__(a, b)
+function vec_base.__sub(a, b)
   assert(class.is_instance(a, vec_base))
   assert(class.is_instance(b, vec_base))
   assert(a.dimension == b.dimension)
@@ -68,9 +68,9 @@ function vec_base.__sub__(a, b)
   return a.__type__:new(result)
 end
 
-function vec_base.__mul__(a, b)
+function vec_base.__mul(a, b)
   if (type(a) == 'number') then
-    return b * a
+    return vec_base.__mul(b, a)
   end
   assert(class.is_instance(a, vec_base))
   assert(type(b) == 'number')
@@ -81,7 +81,7 @@ function vec_base.__mul__(a, b)
   return a.__type__:new(result)
 end
 
-function vec_base.__div__(a, b)
+function vec_base.__div(a, b)
   assert(class.is_instance(a, vec_base))
   assert(type(b) == 'number')
   local result = {}
@@ -91,7 +91,7 @@ function vec_base.__div__(a, b)
   return a.__type__:new(result)
 end
 
-function vec_base.__eq__(a, b)
+function vec_base.__eq(a, b)
   if not class.is_instance(a, vec_base) then return false end
   if not class.is_instance(b, vec_base) then return false end
   if a.dimension ~= b.dimension then return false end
