@@ -1,5 +1,7 @@
+local utils = require 'lulz.private.utils'
 local class = require 'lulz.class'
 local dict = require 'lulz.dict'
+local fn = require 'lulz.functional'
 
 local ESCAPE = string.char(27)
 local RED    = ESCAPE .. '[1;31m'
@@ -80,10 +82,18 @@ function TestCase:print_results(testname)
   end
 end
 
-function TestCase:run_test(testname, func)
+TestCase.args_test = class {
+  __init__ = function(self, data)
+    self.call = data.call
+    self.argsset = data.argsset
+  end
+}
+TestCase.args_test.__class_call__ = TestCase.args_test.new
+
+function TestCase:run_test(testname, func, ...)
   local instance = self:new()
   instance:setup()
-  local res, error = pcall(func, instance)
+  local res, error = pcall(func, instance, ...)
   if not res then
     instance:fail(error)
   end
@@ -99,12 +109,21 @@ function TestCase:run()
   local all = 0
   local passed = 0
   local warnings = 0
-  for testname, func in pairs(self) do
-    if type(func) == 'function' and testname:find('^test_') then
-      local success, warns = self:run_test(testname, func)
-      all = all + 1
-      warnings = warnings + warns
-      if success then passed = passed + 1 end
+  local function run_test(testname, test, ...)
+    local success, warns = self:run_test(testname, test, ...)
+    all = all + 1
+    warnings = warnings + warns
+    if success then passed = passed + 1 end
+  end
+
+  for testname, func in fn.filter(function(name) return name:find('^test_') end, self) do
+    if type(func) == 'function' then
+      run_test(testname, func)
+    end
+    if class.is_instance(func, TestCase.args_test) then
+      for _,arg in ipairs(func.argsset) do
+        run_test(testname .. ' ' .. utils.dump(arg), func.call, unpack(arg))
+      end
     end
   end
   print((passed == all) and (warnings > 0 and YELLOW or GREEN) or RED)

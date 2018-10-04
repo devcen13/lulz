@@ -27,12 +27,21 @@ end
 
 
 local function _dump_recursive(t)
+  if type(t) == 'string' then return '"' .. t .. '"' end
   if type(t) ~= 'table' then return tostring(t) end
   local str = '{ '
   local comma = ''
-  for k, v in pairs(t) do
-    str = str .. comma .. '[' .. _dump_recursive(k) .. '] = ' .. _dump_recursive(v)
+  local maxi = 0
+  for i, v in ipairs(t) do
+    str = str .. comma .. _dump_recursive(v)
     comma = ', '
+    maxi = i
+  end
+  for k, v in pairs(t) do
+    if type(k) ~= 'number' or k > maxi then
+      str = str .. comma .. '[' .. _dump_recursive(k) .. '] = ' .. _dump_recursive(v)
+      comma = ', '
+    end
   end
   return str .. ' }'
 end
