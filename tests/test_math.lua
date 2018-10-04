@@ -157,3 +157,79 @@ TestVec2.test_vec2_dot = TestCase.args_test {
     { { 1, 1 }, { 1, 1 }, math.sqrt(2) },
   }
 }
+
+TestVec2.test_vec2_unm = TestCase.args_test {
+  call = function(self, v1, res)
+    v1 = vec2:new(v1)
+    self:assert_equal(-v1, vec2:new(res))
+  end,
+  argsset = {
+    { { 1, 0 }, { -1,  0 } },
+    { { 1, 1 }, { -1, -1 } },
+  }
+}
+
+TestVec2.test_vec2_sum = TestCase.args_test {
+  call = function(self, v1, v2, res)
+    v1 = vec2:new(v1)
+    v2 = vec2:new(v2)
+    self:assert_equal(v1 + v2, vec2:new(res))
+  end,
+  argsset = {
+    { { 1, 0 }, { 0, 1 }, { 1, 1 } },
+    { { 1, 1 }, { 1, 1 }, { 2, 2 } },
+  }
+}
+
+TestVec2.test_vec2_sub = TestCase.args_test {
+  call = function(self, v1, v2, res)
+    v1 = vec2:new(v1)
+    v2 = vec2:new(v2)
+    self:assert_equal(v1 - v2, vec2:new(res))
+  end,
+  argsset = {
+    { { 1, 0 }, { 0, 1 }, { 1, -1 } },
+    { { 1, 1 }, { 1, 1 }, { 0, 0 } },
+  }
+}
+
+TestVec2.test_vec2_mul = TestCase.args_test {
+  call = function(self, v, k, res)
+    self:assert_equal(vec2:new(v) * k, vec2:new(res))
+    self:assert_equal(k * vec2:new(v), vec2:new(res))
+  end,
+  argsset = {
+    { { 1, 0 }, 0, { 0, 0 } },
+    { { 1, 0 }, 1, { 1, 0 } },
+  }
+}
+
+TestVec2.test_vec2_div = TestCase.args_test {
+  call = function(self, v, k, res)
+    self:assert_equal(vec2:new(v) / k, vec2:new(res))
+  end,
+  argsset = {
+    { { 1, 0 }, 1, { 1, 0 } },
+    { { 4, 2 }, 2, { 2, 1 } },
+  }
+}
+
+TestVec2.test_vec2_eq = TestCase.args_test {
+  call = function(self, v1, v2)
+    self:assert_equal(vec2:new(v1), vec2:new(v2))
+  end,
+  argsset = {
+    { { 1, 0 }, { 1, 0 } },
+    { { 4, 2 }, { 4, 2 } },
+  }
+}
+
+TestVec2.test_vec2_ne = TestCase.args_test {
+  call = function(self, v1, v2)
+    self:assert_not_equal(vec2:new(v1), vec2:new(v2))
+  end,
+  argsset = {
+    { { 1, 0 }, { 0, 1 } },
+    { { 4, 2 }, { 4, 3 } },
+  }
+}

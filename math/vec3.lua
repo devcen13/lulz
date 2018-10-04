@@ -23,6 +23,8 @@ local vec3 = vec2:inherit 'vec3' {
   end,
 }
 
+vec3.__class_call__ = vec3.new
+
 
 vec3.z = class.property {
   get = function(self) return self._data[3] end,

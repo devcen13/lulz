@@ -1,4 +1,7 @@
+local utils = require 'lulz.private.utils'
 local class = require 'lulz.class'
+
+local vec_base = require 'lulz.math.vec_base'
 
 
 local function _vec2_data(args)
@@ -14,27 +17,15 @@ local function _vec2_data(args)
   }
 end
 
-local vec2 = class 'vec2' {
+local vec2 = vec_base:inherit 'vec2' {
   dimension = 2,
 
   __init__ = function(self, ...)
     rawset(self, '_data', _vec2_data { ... })
   end,
-
-  __index__ = function(self, k)
-    return self._data[k]
-  end,
-  __newindex__ = function(self, k, v)
-    self._data[k] = v
-  end,
-
-  __str__ = function(self)
-    return 'vec2 { ' .. self.x .. ', ' .. self.y .. ' }'
-  end
 }
 
 vec2.__class_call__ = vec2.new
-
 
 vec2.x = class.property {
   get = function(self) return self._data[1] end,
@@ -53,25 +44,6 @@ vec2.xy = class.property {
     self._data[2] = value[2] ~= nil and value[2] or value.y
   end,
 }
-
-vec2.len = class.property {
-  get = function(self) return self:dot(self) end
-}
-
-function vec2.dot(a, b)
-  return math.sqrt(vec2.dot2(a, b))
-end
-
-function vec2.dot2(a, b)
-  assert(class.is_instance(a, vec2))
-  assert(class.is_instance(b, vec2))
-  assert(a.dimension == b.dimension)
-  local sum = 0
-  for i = 1,a.dimension do
-    sum = sum + a[i] * b[i]
-  end
-  return sum
-end
 
 
 return vec2
