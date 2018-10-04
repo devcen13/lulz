@@ -1,6 +1,5 @@
 local utils = require 'lulz.private.utils'
 local class = require 'lulz.class'
-local dict = require 'lulz.dict'
 local fn = require 'lulz.functional'
 
 local ESCAPE = string.char(27)
@@ -55,14 +54,14 @@ function TestCase:assert_false(cond, message)
 end
 
 function TestCase:assert_equal(actual, expected, message)
-  if dict.equals(actual, expected) then return end
-  self:fail('Actual:   ' .. dict.dump(actual))
-  self:fail('Expected: ' .. dict.dump(expected))
+  if utils.equals(actual, expected) then return end
+  self:fail('Actual:   ' .. utils.dump(actual))
+  self:fail('Expected: ' .. utils.dump(expected))
   self:fail(message)
 end
 
 function TestCase:assert_not_equal(actual, expected, message)
-  if not dict.equals(actual, expected) then return end
+  if not utils.equals(actual, expected) then return end
   self:fail(message)
 end
 
