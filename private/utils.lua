@@ -29,6 +29,7 @@ end
 local function _dump_recursive(t)
   if type(t) == 'string' then return '"' .. t .. '"' end
   if type(t) ~= 'table' then return tostring(t) end
+  if getmetatable(t) and getmetatable(t).__tostring then return tostring(t) end
   local str = '{ '
   local comma = ''
   local maxi = 0
