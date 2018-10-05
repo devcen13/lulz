@@ -88,7 +88,7 @@ local function _try_add_abstract(class, name, prop)
     return true
   end
 
-  rawset(class, '__abstract__', class.__abstract__ or {})
+  rawset(class, '__abstract__', rawget(class, '__abstract__') or {})
   class.__abstract__[name] = prop
   return true
 end
@@ -137,7 +137,7 @@ end
 
 --[[ Mixin ]]
 local function _add_mixin(class, mixin)
-  for name, prop in pairs(mixin.__abstract__ or {}) do
+  for name, prop in pairs(rawget(mixin, '__abstract__') or {}) do
     _try_add_abstract(class, name, prop)
   end
   for name, prop in pairs(mixin) do
@@ -162,23 +162,37 @@ end
 
 
 --[[ Class get/set ]]
-local function _get_attribute(inst, k)
-  local getters = inst.__type__.__getters__
-  if getters[k] then return getters[k](inst) end
-
-  if rawget(inst.__type__, k) ~= nil then return inst.__type__[k] end
-  if inst.__type__.__mixin__ ~= nil then
-    for _,mixin in ipairs(inst.__type__.__mixin__) do
+local function _get_static_attribute(cls, k)
+  if rawget(cls, k) ~= nil then return cls[k] end
+  if rawget(cls, '__mixin__') ~= nil then
+    for _,mixin in ipairs(cls.__mixin__) do
       if mixin[k] ~= nil then return mixin[k] end
     end
   end
-  return inst.__type__.__get(inst, k)
+  if rawget(cls, '__super__') ~= nil then
+    return _get_static_attribute(cls.__super__, k)
+  end
+end
+
+local function _get_attribute(inst, k)
+  local cls = inst.__type__
+  local getters = cls.__getters__
+  if getters[k] then return getters[k](inst) end
+
+  local static = _get_static_attribute(cls, k)
+  if static ~= nil then return static end
+
+  if cls.__get ~= nil then
+    return cls.__get(inst, k)
+  end
 end
 
 local function _set_attribute(inst, k, v)
-  local setters = inst.__type__.__setters__
+  local cls = inst.__type__
+  local setters = cls.__setters__
   if setters[k] then return setters[k](inst, v) end
-  return inst.__type__.__set(inst, k, v)
+
+  return (cls.__set or rawset)(inst, k, v)
 end
 
 
@@ -218,9 +232,6 @@ function builder.classtable(name, super)
     __abstract__ = super and clone(super.__abstract__),
     __getters__  = super and clone(super.__getters__)  or {},
     __setters__  = super and clone(super.__setters__)  or {},
-
-    __get = rawget,
-    __set = rawset,
   }
 
   for key, prop in pairs(super or {}) do
@@ -228,7 +239,7 @@ function builder.classtable(name, super)
   end
 
   class = smt(class, {
-    __index    = super,
+    __index    = _get_static_attribute,
     __newindex = _add_attribute,
     __tostring = _class_string,
     __call     = _extend_class,
@@ -277,8 +288,13 @@ function class.get_by_id(id)
   return __classes__[id]
 end
 
-function class.is_abstract(cls)
+function class.is_class(cls)
   if type(cls) ~= 'table' then return false end
+  return class.get_by_id(cls.__id__) == cls
+end
+
+function class.is_abstract(cls)
+  if not class.is_class(cls) then return false end
   return rawget(cls, '__abstract__') ~= nil
 end
 
@@ -296,7 +312,7 @@ end
 
 function class.is_instance(instance, cls)
   if type(instance) ~= 'table' then return false end
-  return class.is_base_of(cls, instance.__type__)
+  return class.is_base_of(cls or object, instance.__type__)
 end
 
 function class.property(prop_tbl)
@@ -309,6 +325,12 @@ end
 
 function class.abstract_property()
   return { __type__ = '__abstract__', __expect__ = '__property__' }
+end
+
+function class.inherited_init()
+  return function(self, ...)
+    self.__super__.__init__(self, ...)
+  end
 end
 
 return class

@@ -2,6 +2,7 @@ local class = require 'lulz.class'
 local iterable = require 'lulz.iterable'
 local iterator = require 'lulz.iterator'
 local dict = require 'lulz.dict'
+local str = require 'lulz.str'
 
 
 local list_config = {
@@ -20,6 +21,10 @@ local list = class "list" {
   __init__ = function(self, data)
     rawset(self, '_values', {})
     self:extend(data)
+  end,
+
+  __tostring = function(self)
+    return 'list { ' .. str.join(', ', self._values) .. ' }'
   end,
 
   __len = function(self) return #self._values end,

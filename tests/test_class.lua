@@ -99,6 +99,22 @@ function TestClass:test_class_can_be_found_by_id()
   self:assert(base == self.base)
 end
 
+function TestClass:test_class_is_class()
+  self:assert(class.is_class(self.base))
+end
+
+function TestClass:test_instance_is_instance()
+  self:assert(class.is_instance(self.base:new()))
+end
+
+function TestClass:test_instance_is_not_class()
+  self:assert_false(class.is_class(self.base:new()))
+end
+
+function TestClass:test_class_is_not_instance()
+  self:assert_false(class.is_instance(self.base))
+end
+
 
 local TestMeta = TestCase:inherit 'Class Meta'
 
@@ -196,9 +212,11 @@ local TestInheritance = TestCase:inherit 'Class Inheritance'
 function TestInheritance:setup()
   self.base = class {
     static_var = 0,
+
     __init__ = function(inst, value)
       inst.value = value
     end,
+
     get_value = function(inst) return inst.value end
   }
 end
@@ -213,6 +231,12 @@ function TestInheritance:test_base_function_call()
   local derived = self.base:inherit()
   local inst = derived:new(5)
   self:assert_equal(inst:get_value(), 5)
+end
+
+function TestInheritance:test_base_static_get()
+  local derived = self.base:inherit()
+  local inst = derived:new(5)
+  self:assert_equal(inst.static_var, 0)
 end
 
 function TestInheritance:test_inherited_function_override()
@@ -305,6 +329,14 @@ function TestInheritance:test_instance_is_not_instance_of_sibling()
   self:assert_false(class.is_instance(derived1:new(), derived2))
 end
 
+function TestInheritance:test_inherited_init()
+  local derived = self.base:inherit() {
+    __init__ = class.inherited_init()
+  }
+  local inst = derived:new(5)
+  self:assert_equal(inst.value, 5)
+end
+
 
 local TestMixin = TestCase:inherit 'Class Mixin'
 
@@ -387,5 +419,37 @@ function TestMixin:test_mixin_statics_are_available()
     }
   }
 
+  self:assert_equal(derived.static_var, 5)
+end
+
+function TestMixin:test_mixin_statics_are_available_via_self()
+  local derived = self.base:inherit {
+    __mixin__ = {
+      class { static_var = 5 }
+    }
+  }
+
   self:assert_equal(derived:new().static_var, 5)
+end
+
+function TestMixin:test_parent_mixin_statics_are_available()
+  local derived = self.base:inherit {
+    __mixin__ = {
+      class { static_var = 5 }
+    }
+  }
+
+  local derived2 = derived:inherit {}
+  self:assert_equal(derived2.static_var, 5)
+end
+
+function TestMixin:test_parent_mixin_statics_are_available_via_self()
+  local derived = self.base:inherit {
+    __mixin__ = {
+      class { static_var = 5 }
+    }
+  }
+
+  local derived2 = derived:inherit {}
+  self:assert_equal(derived2:new().static_var, 5)
 end
