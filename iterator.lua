@@ -4,6 +4,10 @@ local iterable = require 'lulz.iterable'
 local generator = require 'lulz.generator'
 
 
+iterator.empty = function()
+  return function() end
+end
+
 iterator.pairs = generator {
   gen = function(self, tbl)
     for k,v in pairs(tbl) do
@@ -31,6 +35,7 @@ iterator.values = generator {
 
 
 iterator.__class_call__ = function(_, iter)
+  if iter == nil then return iterator.empty() end -- nil returning empty itera
   if class.is_instance(iter, iterator) then return iter end
   if class.is_instance(iter, iterable) then return iter:iter() end
   return iterator.pairs(iter)
