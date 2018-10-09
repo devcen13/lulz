@@ -9,12 +9,9 @@ local utils = require 'lulz.private.utils'
 local dict = class 'dict' {
   __mixin__ = { iterable },
 
-  size = class.property {
-    get = function(self) return fn.count(self._values) end
-  },
-
   __init__ = function(self, values)
-    self._values = utils.clone(values)
+    rawset(self, '_values', {})
+    self:extend(values)
   end,
 
   __get = function(self, k)
@@ -59,17 +56,33 @@ function dict.clone(tbl)
 end
 
 function dict.extend(tbl, overrides)
-  return utils.extend(_dict_data(tbl), _dict_data(overrides))
+  local data = _dict_data(tbl)
+  for k,value in iterator(overrides) do
+    data[k] = value
+  end
 end
 
 function dict.override(tbl, overrides)
   return utils.override(_dict_data(tbl), _dict_data(overrides))
 end
 
+function dict.clear(tbl)
+  assert(class.is_instance(tbl, dict))
+  tbl._values = {}
+end
+
+function dict.size(tbl)
+  return fn.count(_dict_data(tbl))
+end
+
+function dict.is_empty(tbl)
+  return next(_dict_data(tbl)) == nil
+end
+
 
 --[[ Iterators ]]
 function dict.iter(tbl)
-  return iterator.ipairs(_dict_data(tbl))
+  return iterator.pairs(_dict_data(tbl))
 end
 
 function dict.values(tbl)
