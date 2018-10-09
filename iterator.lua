@@ -33,6 +33,16 @@ iterator.values = generator {
   end
 }
 
+iterator.concat = generator {
+  gen = function(self, ...)
+    for _,iter in ipairs { ... } do
+      for a,b,c,d,e,f in iterator(iter) do
+        self:yield(a,b,c,d,e,f)
+      end
+    end
+  end
+}
+
 
 iterator.__class_call__ = function(_, iter)
   if iter == nil then return iterator.empty() end -- nil returning empty itera

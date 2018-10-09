@@ -1,4 +1,3 @@
-local utils = require 'lulz.utils'
 local class = require 'lulz.class'
 local op = require 'lulz.operators'
 local iterator  = require 'lulz.iterator'
@@ -6,7 +5,8 @@ local generator = require 'lulz.generator'
 
 local sign = require('lulz.math').sign
 
-local not_implemented = utils.not_implemented
+
+local recursion_max_depth = 50000
 
 
 local function _id(x)
@@ -73,6 +73,43 @@ local function _foldl(func, iter, accum)
   return accum
 end
 
+local function _foldr_cached(func, iter, accum)
+  local cache = {}
+  local i = 0
+  for v in iter do
+    table.insert(cache, v)
+    i = i + 1
+  end
+
+  while i > 0 do
+    if accum == nil then
+      accum = cache[i]
+    else
+      accum = func(cache[i], accum)
+    end
+    i = i - 1
+  end
+
+  return accum
+end
+
+local function _foldr_recursive(func, iter, accum, i)
+  local item = iter()
+  if item == nil then return accum end
+  if i > recursion_max_depth then
+    accum = _foldr_cached(func, iter, accum)
+  else
+    accum = _foldr_recursive(func, iter, accum, i + 1)
+  end
+  if accum == nil then return item end
+  return func(item, accum)
+end
+
+local function _foldr(func, iter, accum)
+  if type(func) == 'string' then func = op[func] end
+  return _foldr_recursive(func, iterator.values(iter), accum, 0)
+end
+
 
 local binder = class {
   __init__ = function(self, func, ...)
@@ -120,6 +157,18 @@ local _take_while = generator {
   end
 }
 
+local _skip = generator {
+  gen = function(self, count, iter)
+    local i = 0
+    for a,b,c,d,e,f in iterator(iter) do
+      if i >= count then
+        self:yield(a,b,c,d,e,f)
+      end
+      i = i + 1
+    end
+  end
+}
+
 local _skip_while = generator {
   gen = function(self, predicate, iter)
     local first_found = false
@@ -134,15 +183,33 @@ local _skip_while = generator {
   end
 }
 
-local _skip = generator {
-  gen = function(self, count, iter)
+local _reversed = generator {
+  _gen_cached = function(self, iter)
+    local a,b,c,d,e,f = iter()
+    local cache = {}
     local i = 0
-    for a,b,c,d,e,f in iterator(iter) do
-      if i >= count then
-        self:yield(a,b,c,d,e,f)
-      end
+    while a ~= nil do
       i = i + 1
+      table.insert(cache, { a,b,c,d,e,f })
+      a,b,c,d,e,f = iter()
     end
+    while i > 0 do
+      self:yield(unpack(cache[i]))
+      i = i - 1
+    end
+  end,
+  _gen_recursive = function(self, iter, i)
+    if i > recursion_max_depth then
+      return self:_gen_cached(iter)
+    end
+    local a,b,c,d,e,f = iter()
+    if a ~= nil then
+      self:_gen_recursive(iter, i + 1)
+      self:yield(a,b,c,d,e,f)
+    end
+  end,
+  gen = function(self, iter)
+    self:_gen_recursive(iterator(iter), 1)
   end
 }
 
@@ -194,6 +261,8 @@ end
 
 local _bind = function(func, ...) return binder:new(func, ...) end
 local functional = {
+  recursion_max_depth = recursion_max_depth,
+
   id      = _id,
   bind    = _bind,
   compose = _compose,
@@ -202,13 +271,14 @@ local functional = {
   map    = _map,
   filter = _filter,
   foldl  = _foldl,
-  foldr  = not_implemented,
+  foldr  = _foldr,
 
   range   = _range,
   xrange  = _range,
   xrepeat = _xrepeat,
   take    = _take,
   skip    = _skip,
+  reversed = _reversed,
 
   take_while = _take_while,
   skip_while = _skip_while,

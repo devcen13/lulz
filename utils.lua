@@ -1,3 +1,4 @@
+local _utils = require('lulz.private.utils')
 
 local utils = {
   not_implemented = function(reason)

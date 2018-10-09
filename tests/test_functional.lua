@@ -1,4 +1,6 @@
+local class = require 'lulz.class'
 local generator = require 'lulz.generator'
+local iterator = require 'lulz.iterator'
 local fn = require 'lulz.functional'
 
 local TestCase = require 'lulz.testcase'
@@ -288,6 +290,152 @@ function TestUtils:test_take_while_table()
                         { 2, 3, 8, 5, 1, 3, 1 })),
                     2)
 end
+
+function TestUtils:test_reversed_is_iterator()
+  self:assert(class.is_instance(fn.reversed({}), iterator))
+end
+
+TestUtils.test_reversed_table = TestCase.args_test {
+  call = function(self, tbl, result)
+    local rev = fn.reversed(tbl)
+    local len = fn.count(result)
+    for i,v in ipairs(result) do
+      self:assert_equal({ rev() }, { len - i + 1, v })
+    end
+  end,
+  argsset = {
+    { {}, {} },
+    { { 'a' }, { 'a' } },
+    { { 'a', 'b', 'c' }, { 'c', 'b', 'a' } }
+  }
+}
+
+TestUtils.test_reversed_iterator = TestCase.args_test {
+  call = function(self, tbl, result)
+    local rev = fn.reversed(iterator(tbl))
+    local len = fn.count(result)
+    for i,v in ipairs(result) do
+      self:assert_equal({ rev() }, { len - i + 1, v })
+    end
+  end,
+  argsset = {
+    { {}, {} },
+    { { 'a' }, { 'a' } },
+    { { 'a', 'b', 'c' }, { 'c', 'b', 'a' } }
+  }
+}
+
+TestUtils.test_reversed_no_stack_overflow = TestCase.args_test {
+  call = function(self, range, skip)
+    if skip then
+      self:warning('test skipped in current preset.')
+      return
+    end
+    local rev = fn.reversed(fn.range(range))
+    self:assert_equal(rev(), range)
+  end,
+  argsset = {
+    { 1 },
+    { 100 },
+    { 1000 },
+    { 10000 },
+    { fn.recursion_max_depth },
+    { fn.recursion_max_depth + 1 },
+    { 100000, TestCase.fast_test },
+    { 1000000, TestCase.fast_test }
+  }
+}
+
+
+local TestFold = TestCase:inherit 'Functional Fold'
+
+TestFold.test_foldl = TestCase.args_test {
+  call = function(self, op, tbl, base, result)
+    local rev = fn.foldl(op, tbl, base)
+    self:assert_equal(rev, result)
+  end,
+  argsset = {
+    { fn.id, {}, nil, nil },
+    { fn.id, { 1, 2, 3, 4 }, nil, 1 },
+    { '+', {}, nil, nil },
+    { '+', {}, 0, 0 },
+    { '+', { 1, 2, 3, 4 }, 0, 10 },
+    { '*', { 1, 2, 3, 4 }, 0, 0 },
+    { '*', { 1, 2, 3, 4 }, 1, 24 },
+    { '*', { 1, 2, 3, 4 }, nil, 24 },
+
+    { '||', { false, false }, false, false },
+    { '||', { false, false }, true, true },
+    { '||', { false, true }, false, true },
+
+    { '&&', { false, false }, false, false },
+    { '&&', { false, false }, true, false },
+    { '&&', { true, true }, false, false },
+    { '&&', { true, true }, true, true },
+
+    { '&&', iterator.concat(fn.take(fn.recursion_max_depth + 1, fn.xrepeat(true)), { false }), true, false },
+    { '&&', fn.take(fn.recursion_max_depth + 1, fn.xrepeat(true)), false, false },
+    { '&&', fn.take(fn.recursion_max_depth + 1, fn.xrepeat(true)), true, true },
+
+    { '/', { 2, 2, 2, 2 }, 64, 4 }
+  }
+}
+
+TestFold.test_foldr = TestCase.args_test {
+  call = function(self, op, tbl, base, result)
+    local rev = fn.foldr(op, tbl, base)
+    self:assert_equal(rev, result)
+  end,
+  argsset = {
+    { fn.id, {}, nil, nil },
+    { fn.id, { 1, 2, 3, 4 }, nil, 1 },
+    { '+', {}, nil, nil },
+    { '+', {}, 0, 0 },
+    { '+', { 1, 2, 3, 4 }, 0, 10 },
+    { '*', { 1, 2, 3, 4 }, 0, 0 },
+    { '*', { 1, 2, 3, 4 }, 1, 24 },
+    { '*', { 1, 2, 3, 4 }, nil, 24 },
+
+    { function(_, b) return b end, {}, nil, nil },
+    { function(_, b) return b end, { 1, 2, 3, 4 }, nil, 4 },
+
+    { '||', { false, false }, false, false },
+    { '||', { false, false }, true, true },
+    { '||', { false, true }, false, true },
+
+    { '&&', { false, false }, false, false },
+    { '&&', { false, false }, true, false },
+    { '&&', { true, true }, false, false },
+    { '&&', { true, true }, true, true },
+
+    { '&&', iterator.concat(fn.take(fn.recursion_max_depth + 1, fn.xrepeat(true)), { false }), true, false },
+    { '&&', fn.take(fn.recursion_max_depth + 1, fn.xrepeat(true)), false, false },
+    { '&&', fn.take(fn.recursion_max_depth + 1, fn.xrepeat(true)), true, true },
+
+    { '/', { 2, 2, 2, 2 }, 64, 64 }
+  }
+}
+
+TestFold.test_foldr_no_stack_overflow = TestCase.args_test {
+  call = function(self, range, skip)
+    if skip then
+      self:warning('test skipped in current preset.')
+      return
+    end
+    local rev = fn.foldr(function(_, b) return b end, fn.range(range))
+    self:assert_equal(rev, range)
+  end,
+  argsset = {
+    { 1 },
+    { 100 },
+    { 1000 },
+    { 10000 },
+    { fn.recursion_max_depth },
+    { fn.recursion_max_depth + 1 },
+    { 100000, TestCase.fast_test },
+    { 1000000, TestCase.fast_test }
+  }
+}
 
 
 local TestFilter = TestCase:inherit 'Functional Filter'

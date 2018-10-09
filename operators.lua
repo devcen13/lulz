@@ -37,4 +37,8 @@ end
 operators['..'] = operators.concat
 
 
+operators['&&'] = function(a, b) return a and b end
+operators['||'] = function(a, b) return a or  b end
+
+
 return operators
