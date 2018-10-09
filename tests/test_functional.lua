@@ -7,11 +7,13 @@ local TestCase = require 'lulz.testcase'
 local TestBind = TestCase:inherit 'Functional Bind'
 
 function TestBind:test_id_bind()
-  self:assert_equal(fn.bind(fn.id)(5), 5)
+  local f = fn.bind(fn.id)
+  self:assert_equal(f(5), 5)
 end
 
 function TestBind:test_single_argument_bind()
-  self:assert_equal(fn.bind(fn.id, 5)(), 5)
+  local f = fn.bind(fn.id, 5)
+  self:assert_equal(f(), 5)
 end
 
 
@@ -225,6 +227,16 @@ function TestUtils:test_zip_equal()
     counter = counter + 1
   end
   self:assert_equal(counter, 5)
+end
+
+function TestUtils:test_zip_tables()
+  local zipped = fn.zip({ 'a', 'b', 'c', 'd', 'e' }, { 'a', 'b', 'c', 'd', 'e' })
+  self:assert_equal(fn.count(function(a, b) return a == b end, zipped), 5)
+end
+
+function TestUtils:test_zip_size_shortest()
+  local zipped = fn.zip(fn.range(5), fn.range(3))
+  self:assert_equal(fn.count(zipped), 3)
 end
 
 function TestUtils:test_skip_while_empty()

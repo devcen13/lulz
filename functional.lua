@@ -148,11 +148,15 @@ local _skip = generator {
 
 local _zip = generator {
   gen = function(self, iter1, iter2)
-    local item1, item2 = 1
-    while item1 or item2 do
+    iter1 = iterator(iter1)
+    iter2 = iterator(iter2)
+
+    local item1 = iter1()
+    local item2 = iter2()
+    while item1 ~= nil and item2 ~= nil do
+      self:yield(item1, item2)
       item1 = iter1()
       item2 = iter2()
-      self:yield(item1, item2)
     end
   end
 }
