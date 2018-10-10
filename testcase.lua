@@ -11,6 +11,8 @@ local WHITE  = ESCAPE .. '[1;37m'
 local _testcaseclasses = {}
 local TestCase = class {
   cases = {},
+  fast_test = false,
+
   __init_subclass__ = function(self)
     table.insert(_testcaseclasses, self)
   end,
