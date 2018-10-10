@@ -9,6 +9,7 @@ require 'lulz.tests.test_namedtuple'
 require 'lulz.tests.test_generator'
 require 'lulz.tests.test_list'
 require 'lulz.tests.test_dict'
+require 'lulz.tests.test_queue'
 require 'lulz.tests.test_math'
 
 
