@@ -15,7 +15,7 @@ local function _validate_index(tbl, i)
 end
 
 
-local list = class "list" {
+local list = class 'list' {
   __mixin__ = { iterable },
 
   __init__ = function(self, data)
@@ -59,6 +59,10 @@ local function _list_data(tbl)
     return tbl._values
   end
   return tbl
+end
+
+function list.is_empty(tbl)
+  return next(_list_data(tbl)) == nil
 end
 
 
