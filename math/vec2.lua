@@ -1,4 +1,3 @@
-local utils = require 'lulz.private.utils'
 local class = require 'lulz.class'
 
 local vec_base = require 'lulz.math.vec_base'
