@@ -1,26 +1,10 @@
-local lulz = require 'lulz'
 local utils = require 'lulz.private.utils'
+local types = require 'lulz.types'
 
 local clone, extend = utils.clone, utils.extend
 
 local error = error
 local smt, gmt = setmetatable, getmetatable
-
-
---[[ Classes registry ]]
-local __classes__ = {}
-
-if lulz.debug then
-  rawset(_G, '__classes__', __classes__)
-end
-
-local function _classid()
-  return #__classes__ + 1
-end
-
-local function _register_class(class)
-  table.insert(__classes__, class)
-end
 
 
 --[[ Keyword setters ]]
@@ -109,9 +93,35 @@ end
 
 
 --[[ Set attribute ]]
+local function _default_property_setter(name, tp)
+  if tp == nil then
+    return function(self, _, value) self[name] = value end
+  end
+  assert(type(tp) == 'function')
+  -- Convert to property type
+  return function(self, _, value) self[name] = tp(value) end
+end
+
+
+local function _default_property_getter(name, tp, default)
+  if tp == nil then
+    return function(self, _) return self[name] end
+  end
+  assert(type(tp) == 'function')
+  -- Return property value or type's default
+  return function(self, _) return self[name] ~= nil and self[name] or tp(default) end
+end
+
+
 local function _try_add_property(class, name, prop)
   if type(prop) ~= 'table' or prop.__type__ ~= '__property__' then return false end
   _try_resolve_abstract(class, name, '__property__')
+  if prop.__default__ then
+    local prop_name = '__' .. name
+    prop.set = _default_property_setter('__' .. name, prop.__prop_type__)
+    prop.get = _default_property_getter('__' .. name, prop.__prop_type__, prop.__default__)
+    prop.get = function(self, _) return self[prop_name] end
+  end
   class.__getters__[name] = prop.get or function() error('Attempt to set readonly property ' .. name) end
   class.__setters__[name] = prop.set or function() error('Attempt to get private property ' .. name) end
   return true
@@ -219,7 +229,6 @@ local builder = {}
 
 function builder.classtable(name, super)
   local class = {
-    __id__    = _classid(),
     __super__ = super,
 
     inherit   = builder.inherit,
@@ -238,6 +247,7 @@ function builder.classtable(name, super)
     _try_add_method(class, key, prop)
   end
 
+  class.__id__ = types.register(class)
   class = smt(class, {
     __index    = _get_static_attribute,
     __newindex = _add_attribute,
@@ -245,7 +255,6 @@ function builder.classtable(name, super)
     __call     = _extend_class,
   })
 
-  _register_class(class)
   return class
 end
 
@@ -284,13 +293,10 @@ local class = smt({}, {
   end
 })
 
-function class.get_by_id(id)
-  return __classes__[id]
-end
+class.get_by_id = types.get_by_id
 
 function class.is_class(cls)
-  if type(cls) ~= 'table' then return false end
-  return class.get_by_id(cls.__id__) == cls
+  return class.is_base_of(object, cls)
 end
 
 function class.is_abstract(cls)
@@ -300,8 +306,8 @@ end
 
 function class.is_base_of(base, cls)
   if type(cls) ~= 'table' then return false end
-  if cls.__id__ == nil then return false end
-  if cls.__id__ == base.__id__ then return true end
+  if rawget(cls, '__id__') == nil then return false end
+  if cls.__id__ == rawget(base, '__id__') then return true end
   if cls.__mixin__ ~= nil then
     for _,mixin in ipairs(cls.__mixin__) do
       if class.is_base_of(base, mixin) then return true end
@@ -315,8 +321,11 @@ function class.is_instance(instance, cls)
   return class.is_base_of(cls or object, instance.__type__)
 end
 
-function class.property(prop_tbl)
-  return extend(prop_tbl, { __type__ = '__property__' })
+function class.property(prop, value)
+  if prop == nil then prop = { __default__ = true } end
+  if type(prop) ~= 'table' then return class.property(types.typeof(prop), prop) end
+  if types.is_type(prop) then prop = { __prop_type__ = prop, __default__ = value } end
+  return extend(prop, { __type__ = '__property__' })
 end
 
 function class.abstract_method()
