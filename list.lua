@@ -3,6 +3,7 @@ local iterable = require 'lulz.iterable'
 local iterator = require 'lulz.iterator'
 local dict = require 'lulz.dict'
 local str = require 'lulz.str'
+local utils = require 'lulz.private.utils'
 
 
 local list_config = {
@@ -63,6 +64,10 @@ end
 
 function list.is_empty(tbl)
   return next(_list_data(tbl)) == nil
+end
+
+function list.__eq(tbl, other)
+  return utils.equals(_list_data(tbl), _list_data(other))
 end
 
 
