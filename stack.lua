@@ -60,11 +60,11 @@ function stack.push(tbl, value)
 end
 
 function stack.pop(tbl)
-  return table.remove(_stack_data(tbl), 1)
+  return table.remove(_stack_data(tbl))
 end
 
 function stack.top(tbl)
-  return _stack_data(tbl)[1]
+  return _stack_data(tbl)[#tbl]
 end
 
 return stack

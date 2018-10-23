@@ -33,6 +33,7 @@ end
 
 function TestStack:test_pop_returns_pushed()
   local s = stack()
+  s:push(0)
   s:push(1)
   self:assert_equal(s:pop(), 1)
 end
@@ -46,6 +47,7 @@ end
 
 function TestStack:test_top_returns_pushed()
   local s = stack()
+  s:push(0)
   s:push(1)
   self:assert_equal(s:top(), 1)
 end

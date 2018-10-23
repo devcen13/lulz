@@ -34,6 +34,7 @@ end
 function TestQueue:test_dequeue_returns_enqueued()
   local q = queue()
   q:enqueue(1)
+  q:enqueue(0)
   self:assert_equal(q:dequeue(), 1)
 end
 
@@ -47,6 +48,7 @@ end
 function TestQueue:test_next_returns_enqueued()
   local q = queue()
   q:enqueue(1)
+  q:enqueue(0)
   self:assert_equal(q:next(), 1)
 end
 
