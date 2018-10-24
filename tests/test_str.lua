@@ -1,6 +1,6 @@
 local str = require 'lulz.str'
 local fn = require 'lulz.functional'
-local list = require 'lulz.list'
+local list = require 'lulz.collections.list'
 local utils = require 'lulz.private.utils'
 
 local TestCase = require 'lulz.testcase'

@@ -1,4 +1,4 @@
-local dict = require 'lulz.dict'
+local dict = require 'lulz.collections.dict'
 local fn = require 'lulz.functional'
 local class = require 'lulz.class'
 local iterable = require 'lulz.iterable'

@@ -1,7 +1,7 @@
 local class = require 'lulz.class'
 local iterable = require 'lulz.iterable'
 local iterator = require 'lulz.iterator'
-local dict = require 'lulz.dict'
+local dict = require 'lulz.collections.dict'
 local str = require 'lulz.str'
 local utils = require 'lulz.private.utils'
 

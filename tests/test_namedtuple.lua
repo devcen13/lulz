@@ -1,4 +1,4 @@
-local namedtuple = require 'lulz.namedtuple'
+local namedtuple = require 'lulz.collections.namedtuple'
 local TestCase = require 'lulz.testcase'
 
 

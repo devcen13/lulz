@@ -1,4 +1,4 @@
-local list = require 'lulz.list'
+local list = require 'lulz.collections.list'
 local fn = require 'lulz.functional'
 local class = require 'lulz.class'
 local iterable = require 'lulz.iterable'

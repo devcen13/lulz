@@ -1,4 +1,4 @@
-local queue = require 'lulz.queue'
+local queue = require 'lulz.collections.queue'
 local class = require 'lulz.class'
 local iterable = require 'lulz.iterable'
 local fn = require 'lulz.functional'

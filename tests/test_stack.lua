@@ -1,4 +1,4 @@
-local stack = require 'lulz.stack'
+local stack = require 'lulz.collections.stack'
 local class = require 'lulz.class'
 local iterable = require 'lulz.iterable'
 local fn = require 'lulz.functional'
