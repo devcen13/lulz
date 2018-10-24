@@ -81,6 +81,10 @@ function list.items(tbl)
 end
 
 --[[ Modifiers ]]
+function list.insert(tbl, value, index)
+  table.insert(_list_data(tbl), value, index)
+end
+
 function list.append(tbl, value)
   table.insert(_list_data(tbl), value)
 end
@@ -90,6 +94,20 @@ function list.extend(tbl, iter)
   for value in iterator.values(iter) do
     table.insert(data, value)
   end
+end
+
+function list.remove(tbl, value)
+  local data = _list_data(tbl)
+  for i = 1,#data do
+    if data[i] == value then
+      table.remove(data, i)
+      return true
+    end
+  end
+end
+
+function list.pop(tbl, index)
+  return table.remove(_list_data(tbl), index)
 end
 
 function list.resize(tbl, size, value)
