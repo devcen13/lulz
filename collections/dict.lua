@@ -48,6 +48,18 @@ function dict.dump(a)
   return utils.dump(_dict_data(a))
 end
 
+function dict.copy(tbl)
+  if class.is_instance(tbl, dict) then
+    return dict:new(_dict_data(tbl))
+  end
+
+  local copy = {}
+  for k,v in pairs(tbl) do
+    copy[k] = v
+  end
+  return copy
+end
+
 function dict.clone(tbl)
   if class.is_instance(tbl, dict) then
     return dict(utils.clone(_dict_data(tbl)))
@@ -83,6 +95,16 @@ function dict.get(tbl, key, default)
   tbl = _dict_data(tbl)
   local value = tbl[key]
   if value ~= nil then return value end
+  return default
+end
+
+function dict.pop(tbl, key, default)
+  tbl = _dict_data(tbl)
+  local value = tbl[key]
+  if value ~= nil then
+    tbl[key] = nil
+    return value
+  end
   return default
 end
 
