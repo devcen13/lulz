@@ -1,5 +1,6 @@
 local list = require 'lulz.collections.list'
 local fn = require 'lulz.functional'
+local op = require 'lulz.operators'
 local class = require 'lulz.class'
 local iterable = require 'lulz.iterable'
 local iterator = require 'lulz.iterator'
@@ -44,6 +45,31 @@ function TestListUnbound:test_list_resize_with_value()
   list.resize(lst, 6, 1)
   self:assert_equal(lst, { 2, 'a', 3, 78, 1, 1 })
 end
+
+TestListUnbound.test_list_reverse = TestCase.args_test {
+  call = function(self, orig, reversed)
+    list.reverse(orig)
+    self:assert_equal(orig, reversed)
+  end,
+  argsset = {
+    { {}, {} },
+    { { 1, 2 }, { 2, 1 } },
+    { { 1, 2, 3 }, { 3, 2, 1 } },
+  }
+}
+
+TestListUnbound.test_list_reverse = TestCase.args_test {
+  call = function(self, orig, sorted, predicate)
+    list.sort(orig, predicate)
+    self:assert_equal(orig, sorted)
+  end,
+  argsset = {
+    { {}, {} },
+    { { 1, 2 }, { 1, 2 } },
+    { { 3, 2, 3 }, { 2, 3, 3 } },
+    { { 1, 2, 3 }, { 3, 2, 1 }, op.more },
+  }
+}
 
 
 local TestListClass = TestCase:inherit 'List Class'

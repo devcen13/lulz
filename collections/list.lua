@@ -70,6 +70,15 @@ function list.__eq(tbl, other)
   return utils.equals(_list_data(tbl), _list_data(other))
 end
 
+function list.index(tbl, value)
+  local data = _list_data(tbl)
+  for i = 1,#data do
+    if data[i] == value then
+      return i
+    end
+  end
+end
+
 
 --[[ Iterators ]]
 function list.iter(tbl)
@@ -114,6 +123,22 @@ function list.resize(tbl, size, value)
   local data = _list_data(tbl)
   while #data > size do table.remove(data) end
   while #data < size do table.insert(data, value) end
+end
+
+
+--[[ Algorithms ]]
+function list.reverse(tbl)
+  local data = _list_data(tbl)
+  local len = #data
+  for i = 1, math.floor(len/2) do
+    local tmp = data[i]
+    data[i] = data[len - i + 1]
+    data[len - 1 + 1] = tmp
+  end
+end
+
+function list.sort(tbl, predicate)
+  table.sort(_list_data(tbl), predicate)
 end
 
 return list
