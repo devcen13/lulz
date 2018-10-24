@@ -79,6 +79,13 @@ function dict.is_empty(tbl)
   return next(_dict_data(tbl)) == nil
 end
 
+function dict.get(tbl, key, default)
+  tbl = _dict_data(tbl)
+  local value = tbl[key]
+  if value ~= nil then return value end
+  return default
+end
+
 
 --[[ Iterators ]]
 function dict.iter(tbl)
