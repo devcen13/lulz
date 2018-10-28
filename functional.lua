@@ -250,6 +250,17 @@ local function _all(predicate, iter)
   return true
 end
 
+local function _none(predicate, iter)
+  if iter == nil then
+    iter = predicate
+    predicate = _last
+  end
+  for a,b,c,d,e,f in iterator(iter) do
+    if predicate(a,b,c,d,e,f) then return false end
+  end
+  return true
+end
+
 local function _count(predicate, iter)
   if iter == nil then
     iter = predicate
@@ -288,6 +299,7 @@ local functional = {
 
   any = _any,
   all = _all,
+  none = _none,
 
   last = _last,
   count = _count

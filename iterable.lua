@@ -29,6 +29,7 @@ iterable.skip_while = _functional_call(fn.skip_while)
 
 iterable.any   = _functional_call(fn.any)
 iterable.all   = _functional_call(fn.all)
+iterable.none  = _functional_call(fn.none)
 
 iterable.count = _functional_call(fn.count)
 
