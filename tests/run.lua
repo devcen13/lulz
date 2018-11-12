@@ -15,6 +15,7 @@ require 'lulz.tests.test_dict'
 require 'lulz.tests.test_queue'
 require 'lulz.tests.test_stack'
 require 'lulz.tests.test_set'
+require 'lulz.tests.test_ordereddict'
 require 'lulz.tests.test_math'
 
 

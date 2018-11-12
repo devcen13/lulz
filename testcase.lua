@@ -23,6 +23,14 @@ local TestCase = class {
   end,
   setup = function() end,
   teardown = function() end,
+
+  find = function(test_name)
+    for _,case in ipairs(_testcaseclasses) do
+      if case.__name__ == test_name then
+        return case
+      end
+    end
+  end
 }
 
 function TestCase:info(message)

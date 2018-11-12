@@ -15,10 +15,14 @@ local dict = class 'dict' {
   end,
 
   __get = function(self, k)
-    return self._values[k]
+    return self:get(k)
   end,
   __set = function(self, k, v)
-    self._values[k] = v
+    self:insert(k, v)
+  end,
+
+  __eq = function(self, other)
+    return self:equals(other)
   end
 }
 
@@ -65,6 +69,10 @@ function dict.clone(tbl)
     return dict(utils.clone(_dict_data(tbl)))
   end
   return utils.clone(tbl)
+end
+
+function dict.insert(tbl, key, value)
+  _dict_data(tbl)[key] = value
 end
 
 function dict.extend(tbl, overrides)
