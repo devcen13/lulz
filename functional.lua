@@ -269,6 +269,35 @@ local function _count(predicate, iter)
   return _foldl('+', _map(function(...) return predicate(...) and 1 or 0 end, iter), 0)
 end
 
+local function _min(iter)
+  local min = iter()
+  for v in iter do
+    if min > v then min = v end
+  end
+
+  return min
+end
+
+local function _max(iter)
+  local max = iter()
+  for v in iter do
+    if max < v then max = v end
+  end
+
+  return max
+end
+
+local function _minmax(iter)
+  local min = iter()
+  local max = min
+  for v in iter do
+    if min > v then min = v end
+    if max < v then max = v end
+  end
+
+  return min, max
+end
+
 
 local _bind = function(func, ...) return binder:new(func, ...) end
 local functional = {
@@ -296,6 +325,10 @@ local functional = {
 
   zeroes = _bind(_xrepeat, 0),
   ones   = _bind(_xrepeat, 1),
+
+  min    = _min,
+  max    = _max,
+  minmax = _minmax,
 
   any = _any,
   all = _all,
