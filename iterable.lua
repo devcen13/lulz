@@ -1,4 +1,4 @@
-local I = require 'lulz.private.interfaces'
+local I = require 'lulz.interfaces'
 local fn = require 'lulz.functional'
 local iterable = I.iterable
 

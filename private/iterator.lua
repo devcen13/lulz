@@ -1,5 +1,5 @@
 local class = require 'lulz.class'
-local I = require 'lulz.private.interfaces'
+local I = require 'lulz.interfaces'
 
 local iterator = class 'iterator' {
   __mixin__ = { I.iterable },
