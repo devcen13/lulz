@@ -295,6 +295,11 @@ local class = smt({}, {
 
 class.get_by_id = types.get_by_id
 
+
+function class.super(cls)
+  return cls.__super__
+end
+
 function class.is_class(cls)
   return class.is_base_of(object, cls)
 end
