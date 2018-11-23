@@ -1,3 +1,4 @@
+local types = require 'lulz.types'
 local class = require 'lulz.class'
 local iterable = require 'lulz.iterable'
 local generator = require 'lulz.generator'
@@ -5,7 +6,8 @@ local str = require 'lulz.str'
 local utils = require 'lulz.utils'
 
 
-local queue = class 'queue' {
+local queue = class {
+  __name__ = 'queue',
   __mixin__ = { iterable },
 
   __init__ = function(self)
@@ -30,7 +32,7 @@ queue.__class_call__ = queue.new
 
 --[[ Utils ]]
 local function _queue_data(tbl)
-  if class.is_instance(tbl, queue) then
+  if types.isinstance(tbl, queue) then
     return tbl._values
   end
   return tbl

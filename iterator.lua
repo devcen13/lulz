@@ -1,4 +1,4 @@
-local class = require 'lulz.class'
+local types = require 'lulz.types'
 local I = require 'lulz.interfaces'
 local iterator = require 'lulz.private.iterator'
 local generator = require 'lulz.generator'
@@ -45,9 +45,9 @@ iterator.concat = generator {
 
 
 iterator.__class_call__ = function(_, iter)
-  if iter == nil then return iterator.empty() end -- nil returning empty itera
-  if class.is_instance(iter, iterator) then return iter end
-  if class.is_instance(iter, I.iterable) then return iter:iter() end
+  if iter == nil then return iterator.empty() end
+  if types.isinstance(iter, iterator) then return iter end
+  if types.isinstance(iter, I.iterable) then return iter:iter() end
   return iterator.pairs(iter)
 end
 

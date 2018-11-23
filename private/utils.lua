@@ -51,6 +51,9 @@ end
 local function _clone_recursive(t)
   if type(t) ~= 'table' then return t end
   local meta = getmetatable(t)
+  if type(meta) == 'table' and meta['__clone'] then
+    return meta['__clone'](t)
+  end
   local target = {}
   for k, v in pairs(t) do
     if type(v) == 'table' then

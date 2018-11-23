@@ -1,3 +1,4 @@
+local types = require 'lulz.types'
 local class = require 'lulz.class'
 local iterator = require 'lulz.iterator'
 local iterable = require 'lulz.iterable'
@@ -6,7 +7,8 @@ local fn = require 'lulz.functional'
 local utils = require 'lulz.private.utils'
 
 
-local dict = class 'dict' {
+local dict = class {
+  __name__  = 'dict',
   __mixin__ = { iterable },
 
   __init__ = function(self, values)
@@ -37,7 +39,7 @@ end
 
 --[[ Utils ]]
 local function _dict_data(tbl)
-  if class.is_instance(tbl, dict) then
+  if types.isinstance(tbl, dict) then
     return tbl._values
   end
   return tbl
@@ -53,7 +55,7 @@ function dict.dump(a)
 end
 
 function dict.copy(tbl)
-  if class.is_instance(tbl, dict) then
+  if types.isinstance(tbl, dict) then
     return dict:new(_dict_data(tbl))
   end
 
@@ -65,7 +67,7 @@ function dict.copy(tbl)
 end
 
 function dict.clone(tbl)
-  if class.is_instance(tbl, dict) then
+  if types.isinstance(tbl, dict) then
     return dict(utils.clone(_dict_data(tbl)))
   end
   return utils.clone(tbl)
@@ -87,7 +89,7 @@ function dict.override(tbl, overrides)
 end
 
 function dict.clear(tbl)
-  assert(class.is_instance(tbl, dict))
+  assert(types.isinstance(tbl, dict))
   tbl._values = {}
 end
 

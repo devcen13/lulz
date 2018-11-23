@@ -1,4 +1,5 @@
 local stack = require 'lulz.collections.stack'
+local types = require 'lulz.types'
 local class = require 'lulz.class'
 local iterable = require 'lulz.iterable'
 local fn = require 'lulz.functional'
@@ -10,7 +11,7 @@ local TestStack = TestCase:inherit 'Stack'
 
 function TestStack:test_stack_create()
   local s = stack()
-  self:assert(class.is_instance(s, stack))
+  self:assert(types.isinstance(s, stack))
 end
 
 function TestStack:test_new_stack_is_empty()
@@ -53,7 +54,7 @@ function TestStack:test_top_returns_pushed()
 end
 
 function TestStack:test_stack_is_iterable()
-  self:assert(class.is_base_of(iterable, stack))
+  self:assert(class.isbaseof(iterable, stack))
 end
 
 function TestStack:test_stack_iterator_pops()

@@ -1,15 +1,16 @@
 local dict = require 'lulz.collections.dict'
 local list = require 'lulz.collections.list'
 
-local class = require 'lulz.class'
-local iterator = require 'lulz.iterator'
 local types = require 'lulz.types'
 local utils = require 'lulz.private.utils'
+local iterator = require 'lulz.iterator'
 
 local clone = utils.clone
 
 
-local ordereddict = dict:inherit 'ordereddict' {
+local ordereddict = dict:inherit {
+  __name__ = 'ordereddict',
+
   __init__ = function(self, values)
     rawset(self, '_keys', {})
     dict.__init__(self, values)
@@ -29,7 +30,7 @@ end
 
 
 function ordereddict:equals(other)
-  if not class.is_instance(other, ordereddict) then return false end
+  if not types.isinstance(other, ordereddict) then return false end
   if self:size() ~= other:size() then return false end
 
 end
@@ -61,7 +62,7 @@ end
 
 function ordereddict:insert(key, value)
   if self._values[key] ~= nil then
-    return  --- @todo: error?
+    return  --- @todo: error? change value?
   end
   dict.insert(self, key, value)
   list.append(self._keys, key)
@@ -71,7 +72,7 @@ function ordereddict:get(key, default)
   if self._values[key] ~= nil then
     return self._values[key]
   end
-  if types.is_instance(key, types.int) then
+  if types.isinstance(key, types.int) then
       return self:get(self._keys[key], default)
   end
   return default

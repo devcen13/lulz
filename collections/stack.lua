@@ -1,3 +1,4 @@
+local types = require 'lulz.types'
 local class = require 'lulz.class'
 local iterable = require 'lulz.iterable'
 local generator = require 'lulz.generator'
@@ -5,7 +6,8 @@ local str = require 'lulz.str'
 local utils = require 'lulz.utils'
 
 
-local stack = class 'stack' {
+local stack = class {
+  __name__ = 'stack',
   __mixin__ = { iterable },
 
   __init__ = function(self)
@@ -30,7 +32,7 @@ stack.__class_call__ = stack.new
 
 --[[ Utils ]]
 local function _stack_data(tbl)
-  if class.is_instance(tbl, stack) then
+  if types.isinstance(tbl, stack) then
     return tbl._values
   end
   return tbl

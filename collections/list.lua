@@ -1,3 +1,4 @@
+local types = require 'lulz.types'
 local class = require 'lulz.class'
 local iterable = require 'lulz.iterable'
 local iterator = require 'lulz.iterator'
@@ -16,7 +17,8 @@ local function _validate_index(tbl, i)
 end
 
 
-local list = class 'list' {
+local list = class {
+  __name__ = 'list',
   __mixin__ = { iterable },
 
   __init__ = function(self, data)
@@ -56,7 +58,7 @@ end
 
 --[[ Utils ]]
 local function _list_data(tbl)
-  if class.is_instance(tbl, list) then
+  if types.isinstance(tbl, list) then
     return tbl._values
   end
   return tbl

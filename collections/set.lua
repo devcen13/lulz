@@ -1,3 +1,4 @@
+local types = require 'lulz.types'
 local class = require 'lulz.class'
 local iterator = require 'lulz.iterator'
 local iterable = require 'lulz.iterable'
@@ -6,7 +7,8 @@ local utils = require 'lulz.utils'
 local str = require 'lulz.str'
 
 
-local set = class 'set' {
+local set = class {
+  __name__ = 'set',
   __mixin__ = { iterable },
 
   __init__ = function(self, values)
@@ -36,24 +38,24 @@ end
 
 --[[ Checkers ]]
 function set:isdisjoint(other)
-  if not class.is_instance(other, set) then return false end
+  if not types.isinstance(other, set) then return false end
   return self:none(function(elem) return other[elem] end)
 end
 
 function set:__eq(other)
-  if not class.is_instance(other, set) then return false end
+  if not types.isinstance(other, set) then return false end
   if self.size ~= other.size then return false end
   return self:all(function(elem) return other[elem] end)
 end
 
 function set:__lt(other)
-  if not class.is_instance(other, set) then return false end
+  if not types.isinstance(other, set) then return false end
   if self.size >= other.size then return false end
   return self:all(function(elem) return other[elem] end)
 end
 
 function set:__le(other)
-  if not class.is_instance(other, set) then return false end
+  if not types.isinstance(other, set) then return false end
   if self.size > other.size then return false end
   return self:all(function(elem) return other[elem] end)
 end

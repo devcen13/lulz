@@ -6,7 +6,28 @@ local TestTypes = TestCase:inherit 'Types'
 
 TestTypes.test_type_is_type = TestCase.args_test {
   call = function(self, tp)
-    self:assert(types.is_type(tp))
+    self:assert(types.istype(tp))
+  end,
+  argsset = {
+    { types['nil'] },
+    { types.bool },
+    { types.boolean },
+    { types.number },
+    { types.int },
+    { types.float },
+    { types.string },
+    { types.str },
+    { types.table },
+
+    { types['function'] },
+    { types['thread'] },
+    { types['userdata'] },
+  }
+}
+
+TestTypes.test_typeof_type_is_type = TestCase.args_test {
+  call = function(self, tp)
+    self:assert_equal(types.typeof(tp), types.type)
   end,
   argsset = {
     { types['nil'] },
@@ -132,7 +153,7 @@ TestTypes.test_value_type_is_not_different = TestCase.args_test {
 
 TestTypes.test_value_is_instance_of_its_type = TestCase.args_test {
   call = function(self, tp, val)
-    self:assert(types.is_instance(val, tp))
+    self:assert(types.isinstance(val, tp))
   end,
   argsset = {
     { types['nil'], nil },
@@ -155,7 +176,7 @@ TestTypes.test_value_is_instance_of_its_type = TestCase.args_test {
 
 TestTypes.test_value_is_not_instance_of_different_type = TestCase.args_test {
   call = function(self, tp, val)
-    self:assert_false(types.is_instance(val, tp))
+    self:assert_false(types.isinstance(val, tp))
   end,
   argsset = {
     { types['nil'], false },

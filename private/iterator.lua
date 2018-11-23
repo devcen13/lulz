@@ -1,7 +1,8 @@
 local class = require 'lulz.class'
 local I = require 'lulz.interfaces'
 
-local iterator = class 'iterator' {
+local iterator = class {
+  __name__ = 'iterator',
   __mixin__ = { I.iterable },
 
   next = class.abstract_method(),

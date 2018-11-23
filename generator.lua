@@ -4,7 +4,9 @@ local iterator = require 'lulz.private.iterator'
 local co_wrap, co_yield = coroutine.wrap, coroutine.yield
 
 
-local generator = iterator:inherit 'generator' {
+local generator = iterator:inherit {
+  __name__ = 'generator',
+
   __init__ = function(self, ...)
     self._co = co_wrap(self.gen)
     self._args = {...}

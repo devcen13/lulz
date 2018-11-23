@@ -16,7 +16,8 @@ local function _vec2_data(args)
   }
 end
 
-local vec2 = vec_base:inherit 'vec2' {
+local vec2 = vec_base:inherit {
+  __name__ = 'vec2',
   dimension = 2,
 
   __init__ = function(self, ...)

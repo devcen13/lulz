@@ -1,6 +1,7 @@
 local list = require 'lulz.collections.list'
 local fn = require 'lulz.functional'
 local op = require 'lulz.operators'
+local types = require 'lulz.types'
 local class = require 'lulz.class'
 local iterable = require 'lulz.iterable'
 local iterator = require 'lulz.iterator'
@@ -76,7 +77,7 @@ local TestListClass = TestCase:inherit 'List Class'
 
 function TestListClass:test_call_construct()
   local lst = list { 5, 6, 7 }
-  self:assert(class.is_instance(lst, list))
+  self:assert(types.isinstance(lst, list))
 end
 
 function TestListClass:test_call_initializes()
@@ -163,7 +164,7 @@ function TestListClass:test_list_resize_with_value()
 end
 
 function TestListClass:test_list_is_iterable()
-  self:assert(class.is_base_of(iterable, list))
+  self:assert(class.isbaseof(iterable, list))
 end
 
 function TestListClass:test_list_iter_is_ipairs()

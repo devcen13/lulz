@@ -1,4 +1,4 @@
-local class = require 'lulz.class'
+local types = require 'lulz.types'
 local lmath = require 'lulz.math'
 local TestCase = require 'lulz.testcase'
 
@@ -56,7 +56,7 @@ end
 
 function TestVec2:test_vec2_xy_get()
   local vec = vec2 { 1, 0 }
-  self:assert(class.is_instance(vec.xy, vec2))
+  self:assert(types.isinstance(vec.xy, vec2))
   self:assert_equal(vec.xy.x, 1)
   self:assert_equal(vec.xy.y, 0)
 end
@@ -300,21 +300,21 @@ end
 
 function TestVec3:test_vec3_xy_get()
   local vec = vec3 { 1, 0, -1 }
-  self:assert(class.is_instance(vec.xy, vec2))
+  self:assert(types.isinstance(vec.xy, vec2))
   self:assert_equal(vec.xy.x, 1)
   self:assert_equal(vec.xy.y, 0)
 end
 
 function TestVec3:test_vec3_yz_get()
   local vec = vec3 { 1, 0, -1 }
-  self:assert(class.is_instance(vec.yz, vec2))
+  self:assert(types.isinstance(vec.yz, vec2))
   self:assert_equal(vec.yz.x, 0)
   self:assert_equal(vec.yz.y, -1)
 end
 
 function TestVec3:test_vec3_xz_get()
   local vec = vec3 { 1, 0, -1 }
-  self:assert(class.is_instance(vec.xz, vec2))
+  self:assert(types.isinstance(vec.xz, vec2))
   self:assert_equal(vec.xz.x, 1)
   self:assert_equal(vec.xz.y, -1)
 end

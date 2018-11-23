@@ -1,4 +1,3 @@
-local fn = require 'lulz.functional'
 local event = require 'lulz.event'
 local TestCase = require 'lulz.testcase'
 

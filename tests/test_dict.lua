@@ -1,5 +1,6 @@
 local dict = require 'lulz.collections.dict'
 local fn = require 'lulz.functional'
+local types = require 'lulz.types'
 local class = require 'lulz.class'
 local iterable = require 'lulz.iterable'
 local iterator = require 'lulz.iterator'
@@ -29,13 +30,14 @@ function TestDictUnbound:test_dict_extend_with_itertator()
 end
 
 
-local TestDictClass = TestCase:inherit 'dict' {
+local TestDictClass = TestCase:inherit {
+  __name__ = 'Dict Class',
   Type = dict
 }
 
 function TestDictClass:test_call_construct()
   local dct = self.Type { x = 5, y = 6, z = 7 }
-  self:assert(class.is_instance(dct, self.Type))
+  self:assert(types.isinstance(dct, self.Type))
 end
 
 function TestDictClass:test_call_initializes()
@@ -106,7 +108,7 @@ function TestDictClass:test_cleared_dict_is_empty()
 end
 
 function TestDictClass:test_dict_is_iterable()
-  self:assert(class.is_base_of(iterable, self.Type))
+  self:assert(class.isbaseof(iterable, self.Type))
 end
 
 function TestDictClass:test_dict_iter_is_pairs()

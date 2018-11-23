@@ -1,5 +1,6 @@
 local queue = require 'lulz.collections.queue'
 local class = require 'lulz.class'
+local types = require 'lulz.types'
 local iterable = require 'lulz.iterable'
 local fn = require 'lulz.functional'
 
@@ -10,7 +11,7 @@ local TestQueue = TestCase:inherit 'Queue'
 
 function TestQueue:test_queue_create()
   local q = queue()
-  self:assert(class.is_instance(q, queue))
+  self:assert(types.isinstance(q, queue))
 end
 
 function TestQueue:test_new_queue_is_empty()
@@ -53,7 +54,7 @@ function TestQueue:test_next_returns_enqueued()
 end
 
 function TestQueue:test_queue_is_iterable()
-  self:assert(class.is_base_of(iterable, queue))
+  self:assert(class.isbaseof(iterable, queue))
 end
 
 function TestQueue:test_queue_iterator_dequeues()

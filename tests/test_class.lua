@@ -1,4 +1,6 @@
 local class = require 'lulz.class'
+local types = require 'lulz.types'
+local vec2 = require 'lulz.math.vec2'
 local TestCase = require 'lulz.testcase'
 
 
@@ -14,6 +16,14 @@ function TestClass:setup()
   }
 end
 
+function TestClass:test_class_table_is_type()
+  self:assert(types.istype(class))
+end
+
+function TestClass:test_class_is_type()
+  self:assert(types.istype(self.base))
+end
+
 function TestClass:test_constructor_called()
   self.base.__init__ = function(inst) inst.called = true end
   local inst = self.base:new()
@@ -26,9 +36,9 @@ function TestClass:test_named_class()
 end
 
 function TestClass:test_named_class_constructor_called()
-  local cls = class 'Foo' {
-    __init__ = function(inst) inst.called = true end
-  }
+  local cls = class 'Foo'
+  cls.__init__ = function(inst) inst.called = true end
+
   local inst = cls:new()
   self:assert(inst.called)
   self:assert_equal(cls.__name__, 'Foo')
@@ -72,7 +82,43 @@ function TestClass:test_instance_function_override()
   self:assert(self.base.get_value(inst) == 5, 'Instance overrides class function')
 end
 
-function TestClass:test_property()
+function TestClass:test_class_can_be_found_by_id()
+  local base = types.find(self.base.__id__)
+  self:assert(base == self.base)
+end
+
+function TestClass:test_class_is_class()
+  self:assert(class.isclass(self.base))
+end
+
+function TestClass:test_instance_is_instance()
+  self:assert(types.isinstance(self.base:new(), self.base))
+end
+
+function TestClass:test_instance_is_not_class()
+  self:assert_false(class.isclass(self.base:new()))
+end
+
+function TestClass:test_class_is_not_instance()
+  self:assert_false(types.isinstance(self.base, self.base))
+end
+
+
+local TestProperty = TestCase:inherit 'Class Property'
+
+function TestProperty:setup()
+  self.base = class {
+    __init__ = function(inst, value)
+      inst.value = value
+    end
+  }
+end
+
+function TestProperty:test_property_is_type()
+  self:assert(types.istype(class.property))
+end
+
+function TestProperty:test_property()
   self.base.x = class.property {
     get = function(inst) return inst.value end,
     set = function(inst, value) inst.value = value end
@@ -83,7 +129,7 @@ function TestClass:test_property()
   self:assert(inst.x == 42, 'Property setter failed')
 end
 
-function TestClass:test_readonly_property()
+function TestProperty:test_readonly_property()
   self.base.x = class.property {
     get = function(inst) return inst.value end
   }
@@ -91,35 +137,27 @@ function TestClass:test_readonly_property()
   self:assert(inst.x == 5, 'Property getter failed')
   local function set_property() inst.x = 42 end
   self:expect_failure(set_property, 'Readonly property must not be writable')
-  self:assert(inst.x == 5, 'Readonly property value changed')
 end
 
-function TestClass:test_class_can_be_found_by_id()
-  local base = class.get_by_id(self.base.__id__)
-  self:assert(base == self.base)
-end
-
-function TestClass:test_class_is_class()
-  self:assert(class.is_class(self.base))
-end
-
-function TestClass:test_instance_is_instance()
-  self:assert(class.is_instance(self.base:new()))
-end
-
-function TestClass:test_instance_is_not_class()
-  self:assert_false(class.is_class(self.base:new()))
-end
-
-function TestClass:test_class_is_not_instance()
-  self:assert_false(class.is_instance(self.base))
-end
+TestProperty.test_typed_property = TestCase.args_test {
+  call = function(self, prop_type)
+    self.base.x = class.property(prop_type)
+    local inst = self.base:new()
+    self:assert_equal(inst.x, prop_type:new())
+  end,
+  argsset = {
+    { types.int },
+    { types.bool },
+    { types.table },
+    { vec2 },
+  }
+}
 
 
 local TestMeta = TestCase:inherit 'Class Meta'
 
 function TestMeta:setup()
-  self.base = class 'vec2' {
+  self.base = class {
     __init__ = function(this, x, y)
       rawset(this, 'x', x)
       rawset(this, 'y', y)
@@ -249,7 +287,7 @@ end
 
 function TestInheritance:test_abstract_class_is_abstract()
   self.base.x = class.abstract_property()
-  self:assert(class.is_abstract(self.base))
+  self:assert(class.isabstract(self.base))
 end
 
 function TestInheritance:test_abstract_class_cannot_be_instanced()
@@ -290,51 +328,43 @@ function TestInheritance:test_implementing_abstract_property_creates_valid_class
 end
 
 function TestInheritance:test_class_is_base_of_self()
-  self:assert(class.is_base_of(self.base, self.base))
+  self:assert(class.isbaseof(self.base, self.base))
 end
 
 function TestInheritance:test_class_is_base_of_derived()
   local derived = self.base:inherit {}
-  self:assert(class.is_base_of(self.base, derived))
+  self:assert(class.isbaseof(self.base, derived))
 end
 
 function TestInheritance:test_class_is_not_base_of_child()
   local derived = self.base:inherit {}
-  self:assert_false(class.is_base_of(derived, self.base))
+  self:assert_false(class.isbaseof(derived, self.base))
 end
 
 function TestInheritance:test_class_is_not_base_of_sibling()
   local derived1 = self.base:inherit {}
   local derived2 = self.base:inherit {}
-  self:assert_false(class.is_base_of(derived1, derived2))
+  self:assert_false(class.isbaseof(derived1, derived2))
 end
 
 function TestInheritance:test_instance_is_instance_of_self_type()
-  self:assert(class.is_instance(self.base:new(), self.base))
+  self:assert(types.isinstance(self.base:new(), self.base))
 end
 
 function TestInheritance:test_derived_instance_is_instance_of_self_type()
   local derived = self.base:inherit {}
-  self:assert(class.is_instance(derived:new(), derived))
+  self:assert(types.isinstance(derived:new(), derived))
 end
 
 function TestInheritance:test_derived_instance_is_instance_of_base_type()
   local derived = self.base:inherit {}
-  self:assert(class.is_instance(derived:new(), self.base))
+  self:assert(types.isinstance(derived:new(), self.base))
 end
 
 function TestInheritance:test_instance_is_not_instance_of_sibling()
   local derived1 = self.base:inherit {}
   local derived2 = self.base:inherit {}
-  self:assert_false(class.is_instance(derived1:new(), derived2))
-end
-
-function TestInheritance:test_inherited_init()
-  local derived = self.base:inherit() {
-    __init__ = class.inherited_init()
-  }
-  local inst = derived:new(5)
-  self:assert_equal(inst.value, 5)
+  self:assert_false(types.isinstance(derived1:new(), derived2))
 end
 
 
@@ -369,7 +399,7 @@ function TestMixin:test_is_mixin_instance()
     __mixin__ = { self.length },
     __init__ = function(...) return self.base.__init__(...) end
   }
-  self:assert(class.is_instance(derived:new(), self.length))
+  self:assert(types.isinstance(derived:new(), self.length))
 end
 
 function TestMixin:test_mixin_methods_can_be_called()
