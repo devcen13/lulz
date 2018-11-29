@@ -3,7 +3,7 @@ local property = require 'lulz.class.property'
 local abstract = require 'lulz.class.abstract'
 local utils = require 'lulz.private.utils'
 
-local class_type = require 'lulz.class.class'
+local class_type = require 'lulz.class.type'
 
 local clone = utils.clone
 local error = error

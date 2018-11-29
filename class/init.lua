@@ -2,7 +2,7 @@ local types = require 'lulz.types'
 local builder = require 'lulz.class.builder'
 
 
-local class = require 'lulz.class.class'
+local class = require 'lulz.class.type'
 
 class.property = require 'lulz.class.property'
 class.abstract = require 'lulz.class.abstract'
