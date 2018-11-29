@@ -6,7 +6,7 @@ local generator = require 'lulz.generator'
 local sign = require('lulz.math').sign
 
 
-local recursion_max_depth = 50000
+local recursion_max_depth = 10000
 
 
 local function _id(x)

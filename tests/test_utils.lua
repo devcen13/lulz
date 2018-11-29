@@ -58,8 +58,10 @@ function TestUtilsEqual:test_permutated_arrays_not_equal()
 end
 
 function TestUtilsEqual:test_meta_call()
-  local alwaysEqual = setmetatable({}, { __eq = function() return true end })
-  self:assert(utils.equals(alwaysEqual, { 0 }))
+  local eq = function() return true end
+  local a = setmetatable({}, { __eq = eq })
+  local b = setmetatable({}, { __eq = eq })
+  self:assert(utils.equals(a, b))
 end
 
 

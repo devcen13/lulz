@@ -66,7 +66,8 @@ function stack.pop(tbl)
 end
 
 function stack.top(tbl)
-  return _stack_data(tbl)[#tbl]
+  tbl = _stack_data(tbl)
+  return tbl[#tbl]
 end
 
 return stack

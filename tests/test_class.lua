@@ -163,11 +163,13 @@ function TestMeta:setup()
       rawset(this, 'y', y)
     end,
 
+    len    = function(this) return math.sqrt(this.x^2 + this.y^2) end,
+
     __class_call__ = function(cls, ...) return cls:new(...) end,
 
     __tostring = function(this) return '{ ' .. this.x .. ', ' .. this.y .. ' }' end,
 
-    __len    = function(this) return math.sqrt(this.x^2 + this.y^2) end,
+    __len    = function(this) return this:len() end,
     __unm    = function(this) return this.__type__:new(-this.x, -this.y) end,
     __add    = function(this, value) return this.__type__:new(this.x + value.x, this.y + value.y) end,
     __sub    = function(this, value) return this.__type__:new(this.x - value.x, this.y - value.y) end,
@@ -178,8 +180,8 @@ function TestMeta:setup()
     __concat = function(this, value) return this + value end,
 
     __eq = function(this, value) return this.x == value.x and this.y == value.y end,
-    __lt = function(this, value) return #this < #value end,
-    __le = function(this, value) return #this <= #value end,
+    __lt = function(this, value) return this:len() <  value:len() end,
+    __le = function(this, value) return this:len() <= value:len() end,
 
     __set = function() error('invalid attribute') end,
     __get = function() error('invalid attribute') end
@@ -188,12 +190,15 @@ end
 
 function TestMeta:test_class_call()
   local inst = self.base(2, 3)
-  self:assert_equal(inst, { x = 2, y = 3 })
+  local inst2 = self.base:new(2, 3)
+  self:assert_equal(inst, inst2)
 end
 
 function TestMeta:test_eq()
   local inst = self.base:new(2, 3)
-  self:assert_equal(inst, { x = 2, y = 3, additional = 'any' })
+  local inst2 = self.base:new(2, 3)
+  rawset(inst2, 'additional', 'any')
+  self:assert_equal(inst, inst2)
 end
 
 function TestMeta:test_lt()
@@ -204,6 +209,15 @@ end
 function TestMeta:test_le()
   local inst = self.base:new(2, 3)
   self:assert(inst <= inst)
+end
+
+function TestMeta:test_len()
+  if _VERSION < "Lua 5.3" then
+    self:warning('__len is not supported by lua < 5.3')
+    return
+  end
+  local inst = self.base:new(4, 3)
+  self:assert_equal(#inst, 5)
 end
 
 function TestMeta:test_str()

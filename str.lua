@@ -4,7 +4,7 @@ local generator = require 'lulz.generator'
 
 
 -- str module can be used instead of standard string library or replace it
-local str = utils.clone(string)
+local str = setmetatable({}, { __index = string })
 
 str.split = generator {
   gen = function(self, text, pattern, settings)
@@ -20,7 +20,7 @@ str.split = generator {
 }
 
 function str.join(sep, iterable)
-  return fn.foldl(function(a, b) return tostring(a) .. sep .. tostring(b) end, iterable)
+  return fn.foldl(function(a, b) return tostring(a) .. sep .. tostring(b) end, iterable) or ''
 end
 
 function str.words(text)
@@ -28,7 +28,7 @@ function str.words(text)
 end
 
 function str.lines(text, skip_empty)
-  return str.split(text, '[^(\r?\n)]*', { use_regex = true, skip_empty = skip_empty })
+  return str.split(text .. '\n', '([^\r\n]*)\r?\n', { use_regex = true, skip_empty = skip_empty })
 end
 
 

@@ -11,7 +11,7 @@ TestSet.test_set_construct = TestCase.args_test {
     local s = set(elems)
     local items = list:new(s)
     items:sort()
-    self:assert_equal(items, constructed)
+    self:assert_equal(items, list(constructed))
   end,
   argsset = {
     { {}, {} },

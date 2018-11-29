@@ -116,6 +116,11 @@ end
 
 function TestListClass:test_length_valid()
   local lst = list { 2, 'a', 3, 78 }
+  self:assert_equal(lst:count(), 4)
+  if _VERSION < "Lua 5.3" then
+    self:warning('__len is not supported by lua < 5.3')
+    return
+  end
   self:assert_equal(#lst, 4)
 end
 
