@@ -1,4 +1,5 @@
 local utils = require 'lulz.private.utils'
+local types = require 'lulz.types'
 local class = require 'lulz.class'
 local fn = require 'lulz.functional'
 
@@ -12,6 +13,7 @@ local _testcaseclasses = {}
 local TestCase = class {
   cases = {},
   fast_test = false,
+  verbose = true,
 
   __init_subclass__ = function(self)
     table.insert(_testcaseclasses, self)
@@ -34,7 +36,7 @@ local TestCase = class {
 }
 
 function TestCase:info(message)
-  if message then
+  if message and self.verbose then
     table.insert(self.messages, WHITE .. 'info: ' .. message)
   end
 end
@@ -83,6 +85,9 @@ end
 
 function TestCase:print_results(testname)
   local color = self.success and (self.warnings > 0 and YELLOW or GREEN) or RED
+  if not self.verbose and color == GREEN then
+    return
+  end
   local result = self.success and 'passed' or 'failed'
   if self.success and self.warnings > 0 then result = result .. ' with ' .. self.warnings .. ' warning(s)' end
   print(color .. 'Test \'' .. testname .. '\' ' .. result)
@@ -129,7 +134,7 @@ function TestCase:run()
     if type(func) == 'function' then
       run_test(testname, func)
     end
-    if class.is_instance(func, TestCase.args_test) then
+    if types.isinstance(func, TestCase.args_test) then
       for _,arg in ipairs(func.argsset) do
         run_test(testname .. ' ' .. utils.dump(arg), func.call, unpack(arg))
       end
