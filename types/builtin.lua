@@ -68,7 +68,7 @@ builtin_type('userdata')
 builtin_type('int', {
   default = 0,
   convert = math.floor,
-  isinstance = function(v) return math.floor(v) == v end
+  isinstance = function(v) return type(v) == 'number' and math.floor(v) == v end
 })
 
 builtin_type('float', {
