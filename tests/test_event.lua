@@ -1,3 +1,4 @@
+local class = require 'lulz.class'
 local event = require 'lulz.event'
 local TestCase = require 'lulz.testcase'
 
@@ -33,4 +34,33 @@ function TestEvent:test_handler_can_be_subscribed_multiple_times()
   ev:subscribe(handler)
   ev:raise()
   self:assert_equal(calls, 3)
+end
+
+function TestEvent:test_class_handler_can_be_used()
+  local C = class {
+    fn = function(this)
+      this.called = true
+    end
+  }
+  local c = C:new()
+
+  local ev = event()
+  ev:subscribe(c, c.fn)
+  ev:raise()
+  self:assert(c.called)
+end
+
+function TestEvent:test_class_handler_can_be_unsubscribed()
+  local C = class {
+    fn = function(this)
+      this.called = true
+    end
+  }
+  local c = C:new()
+
+  local ev = event()
+  ev:subscribe(c, c.fn)
+  ev:unsubscribe(c, c.fn)
+  ev:raise()
+  self:assert_false(c.called)
 end

@@ -6,7 +6,7 @@ local list = require 'lulz.collections.list'
 local delegate = class {
   __name__ = 'delegate',
   __init__ = function(self, arg1, arg2)
-    self._callable = arg2 == nil and arg1 or fn.bind(arg1, arg2)
+    self._callable = arg2 == nil and arg1 or fn.bind(arg2, arg1)
   end,
 
   __call = function(self, ...)
