@@ -10,5 +10,16 @@ function math.sign(x)
   return 1
 end
 
+function math.clamp(val, min, max)
+  if val > max then return max end
+  if val < min then return min end
+  return val
+end
+
+function math.round(num, idp)
+  local mult = 10^(idp or 0)
+  return math.floor(num * mult + 0.5) / mult
+end
+
 
 return math
