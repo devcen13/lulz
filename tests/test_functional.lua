@@ -2,6 +2,7 @@ local types = require 'lulz.types'
 local generator = require 'lulz.generator'
 local iterator = require 'lulz.iterator'
 local fn = require 'lulz.functional'
+local op = require 'lulz.operators'
 
 local TestCase = require 'lulz.testcase'
 
@@ -16,6 +17,16 @@ end
 function TestBind:test_single_argument_bind()
   local f = fn.bind(fn.id, 5)
   self:assert_equal(f(), 5)
+end
+
+function TestBind:test_mutiple_arguments_bind()
+  local f = fn.bind(op.sum, 5, 3)
+  self:assert_equal(f(), 8)
+end
+
+function TestBind:test_mixed_arguments_bind()
+  local f = fn.bind(op.sum, 5)
+  self:assert_equal(f(3), 8)
 end
 
 
@@ -220,6 +231,28 @@ function TestUtils:test_skip_range()
   end
   self:assert_equal(counter, 5)
   self:assert_equal(last, 50)
+end
+
+function TestUtils:test_skip_all()
+  local counter = 0
+  local last
+  for i in fn.skip(50, fn.range(50)) do
+    last = i
+    counter = counter + 1
+  end
+  self:assert_equal(counter, 0)
+  self:assert_equal(last, nil)
+end
+
+function TestUtils:test_skip_more_than_count()
+  local counter = 0
+  local last
+  for i in fn.skip(100, fn.range(50)) do
+    last = i
+    counter = counter + 1
+  end
+  self:assert_equal(counter, 0)
+  self:assert_equal(last, nil)
 end
 
 function TestUtils:test_zip_equal()

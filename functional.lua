@@ -2,6 +2,7 @@ local class = require 'lulz.class'
 local op = require 'lulz.operators'
 local iterator  = require 'lulz.iterator'
 local generator = require 'lulz.generator'
+local utils = require 'lulz.private.utils'
 
 local sign = require('lulz.math').sign
 
@@ -118,6 +119,10 @@ local binder = class {
   end,
   __call = function(self, ...)
     return self._func(self:_build_params(...))
+  end,
+  __eq = function(self, other)
+    if self._func ~= other._func then return false end
+    return utils.equals(self._params, other._params)
   end
 }
 
@@ -125,7 +130,14 @@ function binder:_build_params(...)
   if #self._params == 0 then
     return ...
   end
-  return unpack(self._params), ...
+  local params = {}
+  for _,p in ipairs(self._params) do
+    table.insert(params, p)
+  end
+  for _,p in ipairs { ... } do
+    table.insert(params, p)
+  end
+  return unpack(params)
 end
 
 
