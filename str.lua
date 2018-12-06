@@ -9,7 +9,10 @@ local str = setmetatable({}, { __index = string })
 str.split = generator {
   gen = function(self, text, pattern, settings)
     settings = utils.override({ use_regex = false, skip_empty = false }, settings)
-    pattern = settings.use_regex and pattern or '[^' .. pattern .. ']'
+    if not settings.use_regex then
+      text = text .. pattern:sub(1,1)
+      pattern = '([^' .. pattern .. ']*)' .. pattern:sub(1,1)
+    end
 
     for match in text:gmatch(pattern) do
       if not settings.skip_empty or match:len() > 0 then

@@ -69,6 +69,15 @@ aaa bbbb]],
   }
 }
 
+TestStrSplit.test_split = TestCase.args_test {
+  call = function(self, text, sep, parts)
+    self:assert_equal(list:new(str.split(text, sep)), list(parts))
+  end,
+  argsset = {
+    { 'path.to.module', '.', { 'path', 'to', 'module' } }
+  }
+}
+
 
 local TestStrReplaceString = TestCase:inherit 'Test replace string with str'
 
