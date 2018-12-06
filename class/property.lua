@@ -14,10 +14,16 @@ local function _typed_property(tp, default)
   local p = _base_property()
   p.init = function(self, name)
     p.__name__ = '__' .. name
-    self[p.__name__] = tp:new(default)
+    if not types.isinstance(default, tp) then
+      default = tp:new(default)
+    end
+    self[p.__name__] = default
   end
   p.set = function(self, value)
-    self[p.__name__] = tp:new(value)
+    if not types.isinstance(value, tp) then
+      value = tp:new(value)
+    end
+    self[p.__name__] = value
   end
   p.get = function(self)
     return self[p.__name__]
