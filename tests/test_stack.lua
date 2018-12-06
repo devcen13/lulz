@@ -22,14 +22,14 @@ end
 function TestStack:test_push_increases_size()
   local s = stack()
   s:push(1)
-  self:assert_equal(s.size, 1)
+  self:assert_equal(s:count(), 1)
 end
 
 function TestStack:test_pop_decreases_size()
   local s = stack()
   s:push(1)
   s:pop()
-  self:assert_equal(s.size, 0)
+  self:assert_equal(s:count(), 0)
 end
 
 function TestStack:test_pop_returns_pushed()
@@ -43,7 +43,7 @@ function TestStack:test_top_does_not_decrease_size()
   local s = stack()
   s:push(1)
   s:top()
-  self:assert_equal(s.size, 1)
+  self:assert_equal(s:count(), 1)
 end
 
 function TestStack:test_top_returns_pushed()
@@ -61,7 +61,7 @@ function TestStack:test_stack_iterator_pops()
   local s = stack()
   s:push(1)
   s:iter()()
-  self:assert_equal(s.size, 0)
+  self:assert_equal(s:count(), 0)
 end
 
 TestStack.test_stack_iterator_runs_until_empty = TestCase.args_test {
@@ -70,10 +70,10 @@ TestStack.test_stack_iterator_runs_until_empty = TestCase.args_test {
     for i in fn.range(range) do
       s:push(i)
     end
-    self:assert_equal(s.size, range)
+    self:assert_equal(s:count(), range)
 
     for _ in s:iter() do end
-    self:assert_equal(s.size, 0)
+    self:assert_equal(s:count(), 0)
   end,
   argsset = {
     { 1 },

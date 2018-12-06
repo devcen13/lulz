@@ -22,14 +22,14 @@ end
 function TestQueue:test_enqueue_increases_size()
   local q = queue()
   q:enqueue(1)
-  self:assert_equal(q.size, 1)
+  self:assert_equal(q:count(), 1)
 end
 
 function TestQueue:test_dequeue_decreases_size()
   local q = queue()
   q:enqueue(1)
   q:dequeue()
-  self:assert_equal(q.size, 0)
+  self:assert_equal(q:count(), 0)
 end
 
 function TestQueue:test_dequeue_returns_enqueued()
@@ -43,7 +43,7 @@ function TestQueue:test_next_does_not_decrease_size()
   local q = queue()
   q:enqueue(1)
   q:next()
-  self:assert_equal(q.size, 1)
+  self:assert_equal(q:count(), 1)
 end
 
 function TestQueue:test_next_returns_enqueued()
@@ -61,7 +61,7 @@ function TestQueue:test_queue_iterator_dequeues()
   local q = queue()
   q:enqueue(1)
   q:iter()()
-  self:assert_equal(q.size, 0)
+  self:assert_equal(q:count(), 0)
 end
 
 TestQueue.test_queue_iterator_runs_until_empty = TestCase.args_test {
@@ -70,10 +70,10 @@ TestQueue.test_queue_iterator_runs_until_empty = TestCase.args_test {
     for i in fn.range(range) do
       q:enqueue(i)
     end
-    self:assert_equal(q.size, range)
+    self:assert_equal(q:count(), range)
 
     for _ in q:iter() do end
-    self:assert_equal(q.size, 0)
+    self:assert_equal(q:count(), 0)
   end,
   argsset = {
     { 1 },

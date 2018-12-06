@@ -13,11 +13,14 @@ local set = class {
 
   __init__ = function(self, values)
     rawset(self, '_values', {})
-    rawset(self, 'size', 0)
+    rawset(self, '_size', 0)
     for elem in iterator.values(values) do
       self:add(elem)
     end
   end,
+
+  count = function(self) return self._size end,
+  __len = function(self) return self._size end,
 
   __get = function(self, k)
     return self._values[k]
@@ -44,19 +47,19 @@ end
 
 function set:__eq(other)
   if not types.isinstance(other, set) then return false end
-  if self.size ~= other.size then return false end
+  if self._size ~= other._size then return false end
   return self:all(function(elem) return other[elem] end)
 end
 
 function set:__lt(other)
   if not types.isinstance(other, set) then return false end
-  if self.size >= other.size then return false end
+  if self._size >= other._size then return false end
   return self:all(function(elem) return other[elem] end)
 end
 
 function set:__le(other)
   if not types.isinstance(other, set) then return false end
-  if self.size > other.size then return false end
+  if self._size > other._size then return false end
   return self:all(function(elem) return other[elem] end)
 end
 
@@ -75,14 +78,14 @@ end
 --[[ Modifiers ]]
 function set:add(elem)
   if not self._values[elem] then
-    self.size = self.size + 1
+    self._size = self._size + 1
   end
   self._values[elem] = true
 end
 
 function set:remove(elem)
   if self._values[elem] then
-    self.size = self.size - 1
+    self._size = self._size - 1
   end
   self._values[elem] = nil
 end

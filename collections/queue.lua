@@ -18,10 +18,8 @@ local queue = class {
     return 'queue { ' .. str.join(', ', self._values) .. ' }'
   end,
 
+  count = function(self) return #self._values end,
   __len = function(self) return #self._values end,
-  size = class.property {
-    get = function(self) return #self._values end,
-  },
 
   __get = utils.deleted('Queue get is disabled. Use dequeue instead.'),
   __set = utils.deleted('Queue set is disabled. Use enqueue instead.'),

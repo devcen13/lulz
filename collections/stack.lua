@@ -18,10 +18,8 @@ local stack = class {
     return 'stack { ' .. str.join(', ', self._values) .. ' }'
   end,
 
+  count = function(self) return #self._values end,
   __len = function(self) return #self._values end,
-  size = class.property {
-    get = function(self) return #self._values end,
-  },
 
   __get = utils.deleted('Stack get is disabled. Use pop instead.'),
   __set = utils.deleted('Stack set is disabled. Use push instead.'),
