@@ -3,6 +3,9 @@ if not string.gmatch(package.path, '\\./\\?/init\\.lua')() then
   package.path = './?/init.lua;' .. package.path
 end
 
+local globals = require 'lulz.globals'
+globals.lock()
+
 
 local tests = require 'lulz.testcase'
 
