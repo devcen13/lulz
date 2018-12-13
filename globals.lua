@@ -18,7 +18,7 @@ function globals.lock()
   _gmt.__index = function (_, k)
     error("attempt to read undeclared variable " .. k, 2)
   end
-  _gmt.__newindex = function (_, k, v)
+  _gmt.__newindex = function (_, k)
     error("attempt to create global variable " .. k, 2)
   end
 

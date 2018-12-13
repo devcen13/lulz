@@ -1,11 +1,14 @@
-local dict = require 'lulz.collections.dict'
-local fn = require 'lulz.functional'
-local types = require 'lulz.types'
-local class = require 'lulz.class'
-local iterable = require 'lulz.iterable'
-local iterator = require 'lulz.iterator'
+local lulz = require 'lulz'
 
-local TestCase = require 'lulz.testcase'
+local dict  = lulz.collections.dict
+local fn    = lulz.functional
+local types = lulz.types
+local class = lulz.class
+
+local iterable = lulz.iterable
+local iterator = lulz.iterator
+
+local TestCase = lulz.testcase
 
 
 local TestDictUnbound = TestCase:inherit 'Dict Unbound Functions'

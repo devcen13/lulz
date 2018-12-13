@@ -1,3 +1,3 @@
-local lulz = {}
+local _package = require 'lulz.package'
 
-return lulz
+return _package(...)

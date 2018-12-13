@@ -1,7 +1,10 @@
-local class = require 'lulz.class'
-local types = require 'lulz.types'
-local vec2 = require 'lulz.math.vec2'
-local TestCase = require 'lulz.testcase'
+local lulz = require 'lulz'
+
+local class = lulz.class
+local types = lulz.types
+local vec2  = lulz.math.vec2
+
+local TestCase = lulz.testcase
 
 
 local TestClass = TestCase:inherit 'Class'
