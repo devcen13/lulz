@@ -1,5 +1,5 @@
 local types = require 'lulz.types'
-local class = require 'lulz.class'
+local class = require 'lulz.types.class'
 local iterator = require 'lulz.iterator'
 local iterable = require 'lulz.iterable'
 local fn = require 'lulz.functional'

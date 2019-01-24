@@ -1,4 +1,4 @@
-local class = require 'lulz.class'
+local class = require 'lulz.types.class'
 local event = require 'lulz.event'
 local TestCase = require 'lulz.testcase'
 

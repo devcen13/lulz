@@ -2,7 +2,7 @@ local list = require 'lulz.collections.list'
 local fn = require 'lulz.functional'
 local op = require 'lulz.operators'
 local types = require 'lulz.types'
-local class = require 'lulz.class'
+local class = require 'lulz.types.class'
 local iterable = require 'lulz.iterable'
 local iterator = require 'lulz.iterator'
 

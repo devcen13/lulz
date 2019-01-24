@@ -1,4 +1,4 @@
-local class = require 'lulz.class'
+local class = require 'lulz.types.class'
 local op = require 'lulz.operators'
 local iterator  = require 'lulz.iterator'
 local generator = require 'lulz.generator'

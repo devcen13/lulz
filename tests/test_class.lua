@@ -1,6 +1,6 @@
 local lulz = require 'lulz'
 
-local class = lulz.class
+local class = require 'lulz.types.class'
 local types = lulz.types
 local vec2  = lulz.math.vec2
 

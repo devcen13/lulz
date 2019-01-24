@@ -1,4 +1,4 @@
-local class = require 'lulz.class'
+local class = require 'lulz.types.class'
 local fn = require 'lulz.functional'
 local list = require 'lulz.collections.list'
 

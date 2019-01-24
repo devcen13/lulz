@@ -1,6 +1,6 @@
 local utils = require 'lulz.private.utils'
 local types = require 'lulz.types'
-local class = require 'lulz.class'
+local class = require 'lulz.types.class'
 local fn = require 'lulz.functional'
 
 local ESCAPE = string.char(27)

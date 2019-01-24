@@ -1,11 +1,11 @@
 local types = require 'lulz.types'
-local builder = require 'lulz.class.builder'
+local builder = require 'lulz.types.class.builder'
 
 
-local class = require 'lulz.class.type'
+local class = require 'lulz.types.class.type'
 
-class.property = require 'lulz.class.property'
-class.abstract = require 'lulz.class.abstract'
+class.property = require 'lulz.types.class.property'
+class.abstract = require 'lulz.types.class.abstract'
 
 
 class.abstract_method = function()

@@ -1,4 +1,4 @@
-local class = require 'lulz.class'
+local class = require 'lulz.types.class'
 
 local vec_base = require 'lulz.math.vec_base'
 

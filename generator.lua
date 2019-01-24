@@ -1,4 +1,4 @@
-local class = require 'lulz.class'
+local class = require 'lulz.types.class'
 local iterator = require 'lulz.private.iterator'
 
 local co_wrap, co_yield = coroutine.wrap, coroutine.yield

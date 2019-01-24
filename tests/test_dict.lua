@@ -3,7 +3,7 @@ local lulz = require 'lulz'
 local dict  = lulz.collections.dict
 local fn    = lulz.functional
 local types = lulz.types
-local class = lulz.class
+local class = require 'lulz.types.class'
 
 local iterable = lulz.iterable
 local iterator = lulz.iterator
