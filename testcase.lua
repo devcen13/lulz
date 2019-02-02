@@ -37,21 +37,21 @@ local TestCase = class {
 
 function TestCase:info(message)
   if message and self.verbose then
-    table.insert(self.messages, WHITE .. 'info: ' .. message)
+    table.insert(self.messages, WHITE .. 'info: ' .. message .. WHITE)
   end
 end
 
 function TestCase:warning(message)
   self.warnings = self.warnings + 1
   if message then
-    table.insert(self.messages, YELLOW .. 'warning: ' .. message)
+    table.insert(self.messages, YELLOW .. 'warning: ' .. message .. WHITE)
   end
 end
 
 function TestCase:fail(message)
   self.success = false
   if message then
-    table.insert(self.messages, RED .. 'error: ' .. message)
+    table.insert(self.messages, RED .. 'error: ' .. message .. WHITE)
   end
 end
 
@@ -90,7 +90,7 @@ function TestCase:print_results(testname)
   end
   local result = self.success and 'passed' or 'failed'
   if self.success and self.warnings > 0 then result = result .. ' with ' .. self.warnings .. ' warning(s)' end
-  print(color .. 'Test \'' .. testname .. '\' ' .. result)
+  print(color .. 'Test \'' .. testname .. '\' ' .. result .. WHITE)
   for _,msg in ipairs(self.messages) do
     print('  ' .. msg)
   end
