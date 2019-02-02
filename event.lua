@@ -36,7 +36,7 @@ function event:subscribe(...)
 end
 
 function event:unsubscribe(...)
-  self._subscribers:remove(delegate(...)) --- @todo list.remove
+  self._subscribers:remove(delegate(...))
 end
 
 function event:raise(...)
