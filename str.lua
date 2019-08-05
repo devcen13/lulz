@@ -26,12 +26,16 @@ function str.join(sep, iterable)
   return fn.foldl(function(a, b) return tostring(a) .. sep .. tostring(b) end, iterable) or ''
 end
 
-function str.words(text)
-  return str.split(text, '%S+', { use_regex = true, skip_empty = true })
+function str.words(text, skip_empty)
+  return str.split(text, '%S+', { use_regex = true, skip_empty = skip_empty })
 end
 
 function str.lines(text, skip_empty)
   return str.split(text .. '\n', '([^\r\n]*)\r?\n', { use_regex = true, skip_empty = skip_empty })
+end
+
+function str.startswith(text, prefix)
+  return text:sub(1, #prefix) == prefix
 end
 
 
