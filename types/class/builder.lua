@@ -91,6 +91,9 @@ end
 
 function builder.add_property(class, key, value)
   class.__properties__[key] = value
+  if rawget(value, 'attach') then
+    value.attach(class, key, value)
+  end
 end
 
 function builder.add_method(class, key, value)
@@ -229,6 +232,7 @@ function builder.new(class, ...)
     error('Cannot instantiate abstract ' .. tostring(class)
           .. '\n\tAbstract: ' .. utils.dump(rawget(class, '__abstract__')))
   end
+
   local instance = setmetatable({ __type__ = class }, class)
 
   for name, prop in pairs(class.__properties__) do
@@ -238,6 +242,7 @@ function builder.new(class, ...)
   end
   local init = rawget(class, '__init__')
   if init then init(instance, ...) end
+
   return instance
 end
 
@@ -249,6 +254,10 @@ function builder.inherit(super, data)
   local class = builder.classtable(data.__name__ or 'anonimous', super)
   data.__name__ = nil
 
+  if super and super['__init_subclass__'] then
+    super['__init_subclass__'](class, data)
+  end
+
   local mixins = data['__mixin__']
   if mixins ~= nil then
     assert(type(mixins) == 'table')
@@ -258,10 +267,6 @@ function builder.inherit(super, data)
 
   for k, v in pairs(data) do
     builder.add_attribute(class, k, v)
-  end
-
-  if super and super['__init_subclass__'] then
-    super['__init_subclass__'](class, data)
   end
 
   return class
