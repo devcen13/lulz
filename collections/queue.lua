@@ -21,6 +21,8 @@ local queue = class {
   count = function(self) return #self._values end,
   __len = function(self) return #self._values end,
 
+  empty = function(self) return self:count() == 0 end;
+
   __get = utils.deleted('Queue get is disabled. Use dequeue instead.'),
   __set = utils.deleted('Queue set is disabled. Use enqueue instead.'),
 }

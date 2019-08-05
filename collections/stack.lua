@@ -18,6 +18,7 @@ local stack = class {
     return 'stack { ' .. str.join(', ', self._values) .. ' }'
   end,
 
+  empty = function(self) return self:count() == 0 end;
   count = function(self) return #self._values end,
   __len = function(self) return #self._values end,
 
