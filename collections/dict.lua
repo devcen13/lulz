@@ -32,7 +32,7 @@ local dict = class {
 function dict:__class_call__(data)
   assert(self == dict)
   local inst = dict:new()
-  inst._values = data
+  inst._values = data or {}
   return inst
 end
 
@@ -45,6 +45,10 @@ local function _dict_data(tbl)
   return tbl
 end
 
+
+function dict:data()
+  return self._values
+end
 
 function dict.equals(a, b, settings)
   return utils.equals(_dict_data(a), _dict_data(b), settings)
