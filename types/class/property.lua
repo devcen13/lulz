@@ -10,23 +10,24 @@ local function _base_property()
   }
 end
 
+local function _convert_typed_property_value(tp, value)
+  if value == nil then return nil end
+  if types.isinstance(value, tp) then return value end
+  if tp.convert then return tp.convert(value) end
+  return tp:new(value)
+end
+
 local function _typed_property(tp, default)
   local p = _base_property()
   p.init = function(self, name)
-    p.__name__ = '__' .. name
-    if not types.isinstance(default, tp) then
-      default = tp:new(default)
-    end
-    self[p.__name__] = default
+    p.__field_name__ = 'prop=' .. name
+    self[p.__field_name__] = _convert_typed_property_value(tp, default)
   end
   p.set = function(self, value)
-    if not types.isinstance(value, tp) then
-      value = tp:new(value)
-    end
-    self[p.__name__] = value
+    self[p.__field_name__] = _convert_typed_property_value(tp, value)
   end
   p.get = function(self)
-    return self[p.__name__]
+    return self[p.__field_name__]
   end
 
   return p
@@ -37,6 +38,7 @@ local function _custom_property(prop)
   p.init = prop.init
   p.get = prop.get
   p.set = prop.set
+  p.attach = prop.attach
   return p
 end
 
