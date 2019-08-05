@@ -34,6 +34,7 @@ function str.lines(text, skip_empty)
   return str.split(text .. '\n', '([^\r\n]*)\r?\n', { use_regex = true, skip_empty = skip_empty })
 end
 
+-- @todo: Add str.endswith
 function str.startswith(text, prefix)
   return text:sub(1, #prefix) == prefix
 end
