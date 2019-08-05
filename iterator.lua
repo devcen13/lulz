@@ -4,9 +4,10 @@ local iterator = require 'lulz.private.iterator'
 local generator = require 'lulz.generator'
 
 
-iterator.empty = function()
-  return function() end
-end
+iterator.empty = iterator:inherit {
+  next = function() end
+} : new()
+
 
 iterator.pairs = generator {
   gen = function(self, tbl)
@@ -45,7 +46,7 @@ iterator.concat = generator {
 
 
 iterator.__class_call__ = function(_, iter)
-  if iter == nil then return iterator.empty() end
+  if iter == nil then return iterator.empty end
   if types.isinstance(iter, iterator) then return iter end
   if types.isinstance(iter, I.iterable) then return iter:iter() end
   return iterator.pairs(iter)
