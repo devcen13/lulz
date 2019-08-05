@@ -77,6 +77,12 @@ builtin_type('float', {
   isinstance = builtin_isinstance 'number'
 })
 
+builtin_type('any', {
+  default = nil,
+  convert = function(v) return v end,
+  isinstance = function() return true end
+})
+
 
 --[[ Aliases ]]
 builtin.str = builtin.string
