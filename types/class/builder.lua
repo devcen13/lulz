@@ -234,6 +234,8 @@ function builder.new(class, ...)
   end
 
   local instance = setmetatable({ __type__ = class }, class)
+  local create = rawget(class, '__create__')
+  if create then create(instance) end
 
   for name, prop in pairs(class.__properties__) do
     if prop.init then
