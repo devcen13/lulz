@@ -1,6 +1,4 @@
 local types = require 'lulz.types'
-
-
 local property = types.declare 'property'
 
 
@@ -10,7 +8,8 @@ local function _base_property()
   }
 end
 
-local function _convert_typed_property_value(tp, value)
+local function _convert_typed_property_value(p, value)
+  local tp = types.find(p.property_type)
   if value == nil then return nil end
   if types.isinstance(value, tp) then return value end
   if tp.convert then return tp.convert(value) end
@@ -19,12 +18,14 @@ end
 
 local function _typed_property(tp, default)
   local p = _base_property()
+  p.property_type = tp.__id__
+  p._convert = _convert_typed_property_value
   p.init = function(self, name)
-    p.__field_name__ = 'prop=' .. name
-    self[p.__field_name__] = _convert_typed_property_value(tp, default)
+    p.__field_name__ = '~prop=' .. name
+    self[p.__field_name__] = p:_convert(default)
   end
   p.set = function(self, value)
-    self[p.__field_name__] = _convert_typed_property_value(tp, value)
+    self[p.__field_name__] = p:_convert(value)
   end
   p.get = function(self)
     return self[p.__field_name__]
@@ -36,6 +37,7 @@ end
 local function _custom_property(prop)
   local p = _base_property()
   p.init = prop.init
+  p._convert = function(_, v) return v end
   p.get = prop.get
   p.set = prop.set
   p.attach = prop.attach
