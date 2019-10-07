@@ -5,18 +5,18 @@ local config = require 'lulz.log.config'
 local LEVELS = config.LEVELS
 
 
-local Logger = struct {  
+local Logger = struct {
   DEFAULT_HANDLER = ConsoleHandler
 }
 
 
-function Logger:__init__(config)
-  config = config or {}
+function Logger:__init__(params)
+  params = params or {}
 
   self.handlers = {}
   self.min_level = 1000
 
-  for _,handler in ipairs(config.handlers or { Logger.DEFAULT_HANDLER:new() }) do
+  for _,handler in ipairs(params.handlers or { Logger.DEFAULT_HANDLER:new() }) do
     self:attach_handler(handler)
   end
 end
