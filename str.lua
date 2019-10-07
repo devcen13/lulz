@@ -22,6 +22,10 @@ str.split = generator {
   end
 }
 
+function str.interpolate(s, tbl)
+  return (s:gsub('($%b{})', function(w) return tbl[w:sub(3, -2)] or w end))
+end
+
 function str.join(sep, iterable)
   return fn.foldl(function(a, b) return tostring(a) .. sep .. tostring(b) end, iterable) or ''
 end
