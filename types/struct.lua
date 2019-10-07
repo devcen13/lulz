@@ -22,6 +22,20 @@ local function _create_struct_inst(type, ...)
   return instance
 end
 
+local function _inherit_struct_type(parent, data)
+  if types.isinstance(data, types.str) then
+    data = { __name__ = data }
+  end
+
+  for k, v in pairs(parent) do
+    if k:sub(1, 2) ~= '__' and rawget(data, k) == nil then
+      data[k] = v
+    end
+  end
+
+  return struct.new(nil, data)
+end
+
 
 function struct.new(_, data)
   if types.isinstance(data, types.str) then
@@ -32,6 +46,7 @@ function struct.new(_, data)
 
   rawset(str, '__index', str)
   rawset(str, 'new',     _create_struct_inst)
+  rawset(str, 'inherit', _inherit_struct_type)
   for k, v in pairs(data) do
     str[k] = v
   end
