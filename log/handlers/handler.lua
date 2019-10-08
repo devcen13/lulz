@@ -18,19 +18,19 @@ function Handler:__init__(params)
   if params.format then
     self.format = params.format
   end
-
-  print('')
 end
 
-function Handler:log(lvl, msg)
-  local params = {
-    lvl  = lvl.fmt,
-    time = os.date("%H:%M:%S"),
-  }
+function Handler:log(lvl, msg, params)
   
-  local info = debug.getinfo(2, "Sl")
-  params.file = info.short_src
-  params.line = info.currentline
+  params = params or {}
+  params.lvl  = lvl.fmt
+  params.time = os.date("%H:%M:%S")
+  
+  if not params.__file__ then
+    local info = debug.getinfo(4, "Sl")
+    params.__file__ = info.short_src
+    params.__line__ = info.currentline
+  end
 
   self:write(lvl, str.interpolate(self.format, params), msg)
 end
