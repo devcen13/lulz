@@ -33,7 +33,7 @@ function Logger:_log(lvl, fmt, params)
 
   params = params or {}
   local msg = str.interpolate(fmt, params)
-  meta_params = {
+  local meta_params = {
     __file__ = params.__file__;
     __line__ = params.__line__;
   }
