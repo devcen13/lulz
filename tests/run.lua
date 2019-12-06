@@ -12,6 +12,7 @@ local tests = require 'lulz.testcase'
 
 require 'lulz.tests.test_utils'
 require 'lulz.tests.test_types'
+require 'lulz.tests.test_interface'
 require 'lulz.tests.test_class'
 require 'lulz.tests.test_functional'
 require 'lulz.tests.test_iterable'

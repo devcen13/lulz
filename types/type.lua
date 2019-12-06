@@ -32,7 +32,8 @@ end
 function basetype.declare(name, meta)
   local tp = {
     __type__ = basetype,
-    __name__ = name or 'anonimous'
+    __name__ = name or 'anonimous';
+    __implements__ = {}
   }
   tp.__id__ = registry.add(tp)
 

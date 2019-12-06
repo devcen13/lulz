@@ -214,6 +214,7 @@ function builder.classtable(name, super)
   if super then
     rawset(class, '__abstract__', clone(rawget(super, '__abstract__')))
     rawset(class, '__properties__', clone(super.__properties__))
+    rawset(class, '__implements__', smt({}, { __index = super.__implements__ }))
   end
 
 
