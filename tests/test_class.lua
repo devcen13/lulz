@@ -144,7 +144,7 @@ end
 
 TestProperty.test_typed_property = TestCase.args_test {
   call = function(self, prop_type)
-    self.base.x = class.property(prop_type)
+    self.base.x = class.property(prop_type, prop_type:new())
     local inst = self.base:new()
     self:assert_equal(inst.x, prop_type:new())
   end,
