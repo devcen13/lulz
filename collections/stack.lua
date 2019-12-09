@@ -1,14 +1,12 @@
 local types = require 'lulz.types'
 local class = require 'lulz.types.class'
-local iterable = require 'lulz.iterable'
+local I = require 'lulz.types.interfaces'
 local generator = require 'lulz.generator'
 local str = require 'lulz.str'
-local utils = require 'lulz.utils'
 
 
 local stack = class {
   __name__ = 'stack',
-  __mixin__ = { iterable },
 
   __init__ = function(self)
     rawset(self, '_values', {})
@@ -22,8 +20,8 @@ local stack = class {
   count = function(self) return #self._values end,
   __len = function(self) return #self._values end,
 
-  __get = utils.deleted('Stack get is disabled. Use pop instead.'),
-  __set = utils.deleted('Stack set is disabled. Use push instead.'),
+  __get = function() error('Stack get is disabled. Use pop instead.') end,
+  __set = function() error('Stack set is disabled. Use push instead.') end,
 }
 
 stack.__class_call__ = stack.new
@@ -51,9 +49,11 @@ local _stack_iter = generator {
   end
 }
 
-function stack.iter(tbl)
-  return _stack_iter(_stack_data(tbl))
-end
+I.iterable:impl(stack, {
+  iter = function(tbl)
+    return _stack_iter(_stack_data(tbl))
+  end
+})
 
 --[[ Modifiers ]]
 function stack.push(tbl, value)

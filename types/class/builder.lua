@@ -1,11 +1,11 @@
 local types = require 'lulz.types'
+local I = require 'lulz.types.interfaces'
 local property = require 'lulz.types.class.property'
 local abstract = require 'lulz.types.class.abstract'
-local utils = require 'lulz.private.utils'
 
 local class_type = require 'lulz.types.class.type'
 
-local clone = utils.clone
+local clone = I.clonable.clone
 local error = error
 local smt, gmt = setmetatable, getmetatable
 
@@ -231,7 +231,7 @@ end
 function builder.new(class, ...)
   if rawget(class, '__abstract__') ~= nil then
     error('Cannot instantiate abstract ' .. tostring(class)
-          .. '\n\tAbstract: ' .. utils.dump(rawget(class, '__abstract__')))
+          .. '\n\tAbstract: ' .. I.displayable.dump(rawget(class, '__abstract__')))
   end
 
   local instance = setmetatable({ __type__ = class }, class)

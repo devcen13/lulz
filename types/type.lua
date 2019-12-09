@@ -1,5 +1,4 @@
 local registry = require 'lulz.types.registry'
-local utils = require 'lulz.private.utils'
 
 
 local type_mt = {
@@ -22,6 +21,7 @@ local basetype = setmetatable({}, type_mt)
 basetype.__type__ = basetype
 basetype.__name__ = 'type'
 basetype.__id__ = registry.add(basetype)
+basetype.__implements__ = {}
 
 function basetype.isinstance(tp)
   if type(tp) ~= 'table' then return false end
@@ -37,7 +37,7 @@ function basetype.declare(name, meta)
   }
   tp.__id__ = registry.add(tp)
 
-  meta = meta or utils.clone(type_mt)
+  meta = meta or type_mt
   return setmetatable(tp, meta)
 end
 

@@ -1,10 +1,10 @@
 local class = require 'lulz.types.class'
-local iterator = require 'lulz.private.iterator'
+local I = require 'lulz.types.interfaces'
 
 local co_wrap, co_yield = coroutine.wrap, coroutine.yield
 
 
-local generator = iterator:inherit {
+local generator = class {
   __name__ = 'generator',
 
   __init__ = function(self, ...)
@@ -21,6 +21,8 @@ local generator = iterator:inherit {
 
   gen = class.abstract_method()
 }
+
+I.iterator:impl(generator)
 
 generator.__class_call__ = function(_, tbl)
   local gen = generator:inherit(tbl)

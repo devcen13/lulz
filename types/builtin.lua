@@ -1,12 +1,11 @@
 local _type = require 'lulz.types.type'
-local utils = require 'lulz.private.utils'
 
 local builtin = {}
 
 
 local function builtin_new(data)
   return function(_, value)
-    if value == nil then return utils.clone(data.default) end
+    if value == nil then return data.default() end
     if data.convert then return data.convert(value) end
 
     assert(data.isinstance(value))
@@ -34,30 +33,30 @@ end
 
 
 builtin_type('nil', {
-  default = nil,
+  default = function() return nil end,
   convert = function() return nil end
 })
 
 builtin_type('boolean', {
-  default = false,
+  default = function() return false end,
   convert = function(v) return not not v end
 })
 
 builtin_type('number', {
-  default = 0,
+  default = function() return 0 end,
 })
 
 builtin_type('table', {
-  default = {},
+  default = function() return {} end,
 })
 
 builtin_type('string', {
-  default = '',
+  default = function() return '' end,
   convert = tostring
 })
 
 builtin_type('function', {
-  default = function() end
+  default = function() return function() end end
 })
 
 builtin_type('thread')
@@ -66,19 +65,19 @@ builtin_type('userdata')
 
 --[[ Subtypes ]]
 builtin_type('int', {
-  default = 0,
+  default = function() return 0 end,
   convert = math.floor,
   isinstance = function(v) return type(v) == 'number' and math.floor(v) == v end
 })
 
 builtin_type('float', {
-  default = 0.0,
+  default = function() return 0.0 end,
   convert = function(v) return v + 0.0 end,
   isinstance = builtin_isinstance 'number'
 })
 
 builtin_type('any', {
-  default = nil,
+  default = function() return nil end,
   convert = function(v) return v end,
   isinstance = function() return true end
 })

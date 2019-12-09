@@ -2,8 +2,7 @@ local list = require 'lulz.collections.list'
 local fn = require 'lulz.functional'
 local op = require 'lulz.operators'
 local types = require 'lulz.types'
-local class = require 'lulz.types.class'
-local iterable = require 'lulz.iterable'
+local I = require 'lulz.types.interfaces'
 local iterator = require 'lulz.iterator'
 
 local TestCase = require 'lulz.testcase'
@@ -114,9 +113,9 @@ function TestListClass:test_constructor_copies()
   self:assert_equal(lst._values, { 3, 42 })
 end
 
-function TestListClass:test_length_valid()
+function TestListClass:test_size_valid()
   local lst = list { 2, 'a', 3, 78 }
-  self:assert_equal(lst:count(), 4)
+  self:assert_equal(lst.size, 4)
   if _VERSION < "Lua 5.3" then
     self:warning('__len is not supported by lua < 5.3')
     return
@@ -169,7 +168,7 @@ function TestListClass:test_list_resize_with_value()
 end
 
 function TestListClass:test_list_is_iterable()
-  self:assert(class.isbaseof(iterable, list))
+  self:assert(I.iterable:isimplemented(list))
 end
 
 function TestListClass:test_list_iter_is_ipairs()

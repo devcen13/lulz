@@ -1,12 +1,12 @@
 local lulz = require 'lulz'
 
+local I = require 'lulz.types.interfaces'
 local dict  = lulz.collections.dict
 local fn    = lulz.functional
 local types = lulz.types
-local class = require 'lulz.types.class'
 
-local iterable = lulz.iterable
-local iterator = lulz.iterator
+local iterable = I.iterable
+local iterator = require 'lulz.iterator'
 
 local TestCase = lulz.testcase
 
@@ -111,7 +111,7 @@ function TestDictClass:test_cleared_dict_is_empty()
 end
 
 function TestDictClass:test_dict_is_iterable()
-  self:assert(class.isbaseof(iterable, self.Type))
+  self:assert(iterable:isimplemented(self.Type))
 end
 
 function TestDictClass:test_dict_iter_is_pairs()

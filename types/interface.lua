@@ -17,6 +17,14 @@ local interface_mt = {
     assert(types.isinstance(v, types.func))
 
     self.__impl__[k] = v
+  end,
+  __index = function(self, k)
+    assert(self.__impl__[k])
+    return function(obj, ...)
+      local tp = types.typeof(obj)
+      assert(interface.isimplemented(self, tp), tp.__name__)
+      return tp[k](obj, ...)
+    end
   end
 }
 

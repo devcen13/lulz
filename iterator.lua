@@ -1,13 +1,10 @@
 local types = require 'lulz.types'
-local I = require 'lulz.interfaces'
-local iterator = require 'lulz.private.iterator'
+local I = require 'lulz.types.interfaces'
 local generator = require 'lulz.generator'
 
+local iterator = {}
 
-iterator.empty = iterator:inherit {
-  next = function() end
-} : new()
-
+iterator.empty = function() end
 
 iterator.pairs = generator {
   gen = function(self, tbl)
@@ -45,11 +42,11 @@ iterator.concat = generator {
 }
 
 
-iterator.__class_call__ = function(_, iter)
+local create_iterator = function(_, iter)
   if iter == nil then return iterator.empty end
-  if types.isinstance(iter, iterator) then return iter end
-  if types.isinstance(iter, I.iterable) then return iter:iter() end
+  if types.isinstance(iter, I.iterator) then return iter end
+  if types.isinstance(iter, I.iterable) then return I.iterable.iter(iter) end
   return iterator.pairs(iter)
 end
 
-return iterator
+return setmetatable(iterator, { __call = create_iterator })

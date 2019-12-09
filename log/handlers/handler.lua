@@ -21,11 +21,10 @@ function Handler:__init__(params)
 end
 
 function Handler:log(lvl, msg, params)
-  
   params = params or {}
   params.lvl  = lvl.fmt
   params.time = os.date("%H:%M:%S")
-  
+
   if not params.__file__ then
     local info = debug.getinfo(4, "Sl")
     params.__file__ = info.short_src

@@ -1,6 +1,6 @@
-local utils = require 'lulz.private.utils'
 local types = require 'lulz.types'
 local class = require 'lulz.types.class'
+local I = require 'lulz.types.interfaces'
 local fn = require 'lulz.functional'
 
 local ESCAPE = string.char(27)
@@ -66,14 +66,14 @@ function TestCase:assert_false(cond, message)
 end
 
 function TestCase:assert_equal(actual, expected, message)
-  if utils.equals(actual, expected) then return end
-  self:fail('Actual:   ' .. utils.dump(actual))
-  self:fail('Expected: ' .. utils.dump(expected))
+  if I.equatable.equals(actual, expected) then return end
+  self:fail('Actual:   ' .. I.displayable.dump(actual))
+  self:fail('Expected: ' .. I.displayable.dump(expected))
   self:fail(message)
 end
 
 function TestCase:assert_not_equal(actual, expected, message)
-  if not utils.equals(actual, expected) then return end
+  if not I.equatable.equals(actual, expected) then return end
   self:fail(message)
 end
 
@@ -136,7 +136,7 @@ function TestCase:run()
     end
     if types.isinstance(func, TestCase.args_test) then
       for _,arg in ipairs(func.argsset) do
-        run_test(testname .. ' ' .. utils.dump(arg), func.call, unpack(arg))
+        run_test(testname .. ' ' .. I.displayable.dump(arg), func.call, unpack(arg))
       end
     end
   end

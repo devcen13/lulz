@@ -194,14 +194,14 @@ end
 function TestMeta:test_class_call()
   local inst = self.base(2, 3)
   local inst2 = self.base:new(2, 3)
-  self:assert_equal(inst, inst2)
+  self:assert(inst == inst2)
 end
 
 function TestMeta:test_eq()
   local inst = self.base:new(2, 3)
   local inst2 = self.base:new(2, 3)
   rawset(inst2, 'additional', 'any')
-  self:assert_equal(inst, inst2)
+  self:assert(inst == inst2)
 end
 
 function TestMeta:test_lt()
@@ -228,23 +228,23 @@ function TestMeta:test_str()
 end
 
 function TestMeta:test_add()
-  self:assert_equal(self.base:new(2, 3) + self.base:new(2, 3), self.base:new(4, 6))
+  self:assert(self.base:new(2, 3) + self.base:new(2, 3) == self.base:new(4, 6))
 end
 
 function TestMeta:test_concat()
-  self:assert_equal(self.base:new(2, 3) .. self.base:new(2, 3), self.base:new(4, 6))
+  self:assert(self.base:new(2, 3) .. self.base:new(2, 3) == self.base:new(4, 6))
 end
 
 function TestMeta:test_sub()
-  self:assert_equal(self.base:new(2, 3) - self.base:new(2, 2), self.base:new(0, 1))
+  self:assert(self.base:new(2, 3) - self.base:new(2, 2) == self.base:new(0, 1))
 end
 
 function TestMeta:test_mul()
-  self:assert_equal(self.base:new(2, 3) * 3, self.base:new(6, 9))
+  self:assert(self.base:new(2, 3) * 3 == self.base:new(6, 9))
 end
 
 function TestMeta:test_div()
-  self:assert_equal(self.base:new(6, 3) / 3, self.base:new(2, 1))
+  self:assert(self.base:new(6, 3) / 3 == self.base:new(2, 1))
 end
 
 function TestMeta:test_newindex()

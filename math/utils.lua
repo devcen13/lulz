@@ -1,8 +1,7 @@
-local utils = require 'lulz.private.utils'
-
+local clonable = require 'lulz.types.interfaces.clonable'
 
 -- lulz.math can be used as standard math or replace it
-local math = utils.clone(math)
+local math = clonable.clone(math)
 
 math.inf = tonumber('inf')
 

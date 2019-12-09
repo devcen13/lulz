@@ -1,15 +1,12 @@
 local types = require 'lulz.types'
 local class = require 'lulz.types.class'
+local I = require 'lulz.types.interfaces'
 local iterator = require 'lulz.iterator'
-local iterable = require 'lulz.iterable'
 local fn = require 'lulz.functional'
-
-local utils = require 'lulz.private.utils'
 
 
 local dict = class {
   __name__  = 'dict',
-  __mixin__ = { iterable },
 
   __init__ = function(self, values)
     rawset(self, '_values', {})
@@ -29,6 +26,39 @@ local dict = class {
 }
 
 
+local function _dict_data(tbl)
+  if types.isinstance(tbl, dict) then
+    return tbl._values
+  end
+  return tbl
+end
+
+
+I.clonable:impl(dict, {
+  clone = function(self)
+    return dict(self._values)
+  end
+})
+
+I.iterable:impl(dict, {
+  iter = function(self)
+    return iterator.pairs(_dict_data(self))
+  end
+})
+
+I.equatable:impl(dict, {
+  equals = function(self, other)
+    return I.equatable.equals(self._values, other._values)
+  end
+})
+
+I.displayable:impl(dict, {
+  dump = function(a)
+    return I.displayable.dump(_dict_data(a))
+  end
+})
+
+
 function dict:__class_call__(data)
   assert(self == dict)
   local inst = dict:new()
@@ -38,24 +68,8 @@ end
 
 
 --[[ Utils ]]
-local function _dict_data(tbl)
-  if types.isinstance(tbl, dict) then
-    return tbl._values
-  end
-  return tbl
-end
-
-
 function dict:data()
   return self._values
-end
-
-function dict.equals(a, b, settings)
-  return utils.equals(_dict_data(a), _dict_data(b), settings)
-end
-
-function dict.dump(a)
-  return utils.dump(_dict_data(a))
 end
 
 function dict.copy(tbl)
@@ -70,13 +84,6 @@ function dict.copy(tbl)
   return copy
 end
 
-function dict.clone(tbl)
-  if types.isinstance(tbl, dict) then
-    return dict(utils.clone(_dict_data(tbl)))
-  end
-  return utils.clone(tbl)
-end
-
 function dict.insert(tbl, key, value)
   _dict_data(tbl)[key] = value
 end
@@ -86,10 +93,6 @@ function dict.extend(tbl, overrides)
   for k,value in iterator(overrides) do
     data[k] = value
   end
-end
-
-function dict.override(tbl, overrides)
-  return utils.override(_dict_data(tbl), _dict_data(overrides))
 end
 
 function dict.clear(tbl)
@@ -124,9 +127,6 @@ end
 
 
 --[[ Iterators ]]
-function dict.iter(tbl)
-  return iterator.pairs(_dict_data(tbl))
-end
 
 function dict.values(tbl)
   return iterator.values(dict.iter(tbl))

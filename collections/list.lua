@@ -1,10 +1,9 @@
 local types = require 'lulz.types'
 local class = require 'lulz.types.class'
-local iterable = require 'lulz.iterable'
+local I = require 'lulz.types.interfaces'
 local iterator = require 'lulz.iterator'
 local dict = require 'lulz.collections.dict'
 local str = require 'lulz.str'
-local utils = require 'lulz.private.utils'
 
 
 local list_config = {
@@ -19,7 +18,6 @@ end
 
 local list = class {
   __name__ = 'list',
-  __mixin__ = { iterable },
 
   __init__ = function(self, data)
     rawset(self, '_values', {})
@@ -45,6 +43,14 @@ local list = class {
   end
 }
 
+
+I.equatable:impl(list, {
+  equals = function(self, other)
+    return I.equatable.equals(self._values, other._values)
+  end
+})
+
+
 function list.configure(cfg)
   dict.extend(list_config, cfg)
 end
@@ -68,8 +74,8 @@ function list.is_empty(tbl)
   return next(_list_data(tbl)) == nil
 end
 
-function list.__eq(tbl, other)
-  return utils.equals(_list_data(tbl), _list_data(other))
+function list:__eq(other)
+  return self:equals(other)
 end
 
 function list.index(tbl, value)
@@ -83,9 +89,12 @@ end
 
 
 --[[ Iterators ]]
-function list.iter(tbl)
-  return iterator.ipairs(_list_data(tbl))
-end
+
+I.iterable:impl(list, {
+  iter = function(tbl)
+    return iterator.ipairs(_list_data(tbl))
+  end
+})
 
 function list.items(tbl)
   return iterator.values(list.iter(tbl))

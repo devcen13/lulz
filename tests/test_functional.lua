@@ -1,4 +1,5 @@
 local types = require 'lulz.types'
+local I = require 'lulz.types.interfaces'
 local generator = require 'lulz.generator'
 local iterator = require 'lulz.iterator'
 local fn = require 'lulz.functional'
@@ -325,7 +326,7 @@ function TestUtils:test_take_while_table()
 end
 
 function TestUtils:test_reversed_is_iterator()
-  self:assert(types.isinstance(fn.reversed({}), iterator))
+  self:assert(types.isinstance(fn.reversed({}), I.iterator))
 end
 
 TestUtils.test_reversed_table = TestCase.args_test {

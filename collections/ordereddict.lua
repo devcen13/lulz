@@ -2,10 +2,11 @@ local dict = require 'lulz.collections.dict'
 local list = require 'lulz.collections.list'
 
 local types = require 'lulz.types'
-local utils = require 'lulz.private.utils'
+local I = require 'lulz.types.interfaces'
 local iterator = require 'lulz.iterator'
+local generator = require 'lulz.generator'
 
-local clone = utils.clone
+local clone = I.clonable.clone
 
 
 local ordereddict = dict:inherit {
@@ -89,8 +90,16 @@ function ordereddict:pop(key, default)
 end
 
 --[[ Iterators ]]
+local _ordereddict_iter = generator {
+  gen = function(self, d)
+    for k in d:keys() do
+      self:yield(k, d[k])
+    end
+  end
+}
+
 function ordereddict:iter()
-  return self:keys():map(function(k) return k, self._values[k] end)
+  return _ordereddict_iter(self)
 end
 
 function ordereddict:values()

@@ -1,14 +1,12 @@
 local types = require 'lulz.types'
 local class = require 'lulz.types.class'
-local iterable = require 'lulz.iterable'
+local I = require 'lulz.types.interfaces'
 local generator = require 'lulz.generator'
 local str = require 'lulz.str'
-local utils = require 'lulz.utils'
 
 
 local queue = class {
   __name__ = 'queue',
-  __mixin__ = { iterable },
 
   __init__ = function(self)
     rawset(self, '_values', {})
@@ -23,8 +21,8 @@ local queue = class {
 
   empty = function(self) return self:count() == 0 end;
 
-  __get = utils.deleted('Queue get is disabled. Use dequeue instead.'),
-  __set = utils.deleted('Queue set is disabled. Use enqueue instead.'),
+  __get = function() error('Queue get is disabled. Use dequeue instead.') end,
+  __set = function() error('Queue set is disabled. Use enqueue instead.') end,
 }
 
 queue.__class_call__ = queue.new
@@ -53,9 +51,11 @@ local _queue_iter = generator {
   end
 }
 
-function queue.iter(tbl)
-  return _queue_iter(_queue_data(tbl))
-end
+I.iterable:impl(queue, {
+  iter = function(tbl)
+    return _queue_iter(_queue_data(tbl))
+  end
+})
 
 --[[ Modifiers ]]
 function queue.enqueue(tbl, value)

@@ -1,4 +1,3 @@
-local utils = require 'lulz.private.utils'
 local fn = require 'lulz.functional'
 local generator = require 'lulz.generator'
 
@@ -8,7 +7,7 @@ local str = setmetatable({}, { __index = string })
 
 str.split = generator {
   gen = function(self, text, pattern, settings)
-    settings = utils.override({ use_regex = false, skip_empty = false }, settings)
+    settings = settings or {}
     if not settings.use_regex then
       text = text .. pattern:sub(1,1)
       pattern = '([^' .. pattern .. ']*)' .. pattern:sub(1,1)

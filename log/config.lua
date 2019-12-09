@@ -9,7 +9,7 @@ config.LEVELS = {
   { index = 6, id = 'FATAL', func = 'fatal', color = '\27[35m' , fmt = '[FATAL] ' };
 };
 
-config.DEFAULT_LEVEL = 3
+config.DEFAULT_LEVEL = 0
 config.DEFAULT_FORMAT = '${lvl}${time} | '
 
 return config

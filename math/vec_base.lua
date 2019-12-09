@@ -1,6 +1,6 @@
-local utils = require 'lulz.private.utils'
 local types = require 'lulz.types'
 local class = require 'lulz.types.class'
+local I = require 'lulz.types.interfaces'
 
 
 local vec_base = class {
@@ -12,11 +12,19 @@ local vec_base = class {
   end,
 
   __tostring = function(self)
-    return self.__type__.__name__ .. ' ' .. utils.dump(self._data)
+    return self:dump()
   end,
 }
 
 vec_base.__class_call__ = vec_base.new
+
+I.equatable:impl(vec_base)
+
+I.displayable:impl(vec_base, {
+  dump = function(v)
+    return v.__type__.__name__ .. ' ' .. I.displayable.dump(v._data)
+  end
+})
 
 
 vec_base.len = class.property {

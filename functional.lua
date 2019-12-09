@@ -1,8 +1,8 @@
 local class = require 'lulz.types.class'
+local I = require 'lulz.types.interfaces'
 local op = require 'lulz.operators'
 local iterator  = require 'lulz.iterator'
 local generator = require 'lulz.generator'
-local utils = require 'lulz.private.utils'
 
 local sign = require('lulz.math').sign
 
@@ -122,7 +122,7 @@ local binder = class {
   end,
   __eq = function(self, other)
     if self._func ~= other._func then return false end
-    return utils.equals(self._params, other._params)
+    return I.equatable.equals(self._params, other._params)
   end
 }
 

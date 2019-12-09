@@ -1,15 +1,13 @@
 local types = require 'lulz.types'
 local class = require 'lulz.types.class'
+local I = require 'lulz.types.interfaces'
 local iterator = require 'lulz.iterator'
-local iterable = require 'lulz.iterable'
 local fn = require 'lulz.functional'
-local utils = require 'lulz.utils'
 local str = require 'lulz.str'
 
 
 local set = class {
   __name__ = 'set',
-  __mixin__ = { iterable },
 
   __init__ = function(self, values)
     rawset(self, '_values', {})
@@ -25,21 +23,47 @@ local set = class {
   __get = function(self, k)
     return self._values[k]
   end,
-  __set = utils.deleted('Set set is disabled. Use add instead.'),
+  __set = function() error('Set set is disabled. Use add instead.') end,
 
   __tostring = function(self)
     return 'set { ' .. str.join(', ', self:iter()) .. ' }'
   end,
 }
+
 set.__class_call__ = set.new
 
 
-function set:iter()
-  return fn.map(function(k,_) return k end, iterator.pairs(self._values))
-end
+I.iterable:impl(set, {
+  iter = function(self)
+    return fn.map(function(k,_) return k end, iterator.pairs(self._values))
+  end
+})
+
+I.equatable:impl(set)
 
 
 --[[ Checkers ]]
+function set:all(predicate)
+  for item in self:iter() do
+    if not predicate(item) then return false end
+  end
+  return true
+end
+
+function set:any(predicate)
+  for item in self:iter() do
+    if predicate(item) then return true end
+  end
+  return false
+end
+
+function set:none(predicate)
+  for item in self:iter() do
+    if predicate(item) then return false end
+  end
+  return true
+end
+
 function set:isdisjoint(other)
   if not types.isinstance(other, set) then return false end
   return self:none(function(elem) return other[elem] end)
@@ -98,8 +122,8 @@ end
 
 function set:intersection_update(...)
   for elem in self:iter() do
-    local others = iterator.values({...})
-    if not others:all(function(s) return s:contains(elem) end) then
+    local others = iterator.values {...}
+    if not fn.all(function(s) return s:contains(elem) end, others) then
       self:remove(elem)
     end
   end
@@ -107,8 +131,8 @@ end
 
 function set:difference_update(...)
   for elem in self:iter() do
-    local others = iterator.values({...})
-    if others:any(function(s) return s:contains(elem) end) then
+    local others = iterator.values {...}
+    if fn.any(function(s) return s:contains(elem) end, others) then
       self:remove(elem)
     end
   end
@@ -117,7 +141,7 @@ end
 function set:symmetric_difference_update(...)
   for elem in self:union(...):iter() do
     local sets = iterator.values({self, ...})
-    if sets:count(function(s) return s:contains(elem) end) == 1 then
+    if fn.count(function(s) return s:contains(elem) end, sets) == 1 then
       self:add(elem)
     else
       self:remove(elem)
