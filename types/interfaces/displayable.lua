@@ -16,7 +16,7 @@ end
 
 
 displayable:impl(builtins.str, {
-  dump = function(str) return '"' .. str .. '"' end
+  dump = function(str) return string.format('%q', str) end
 })
 
 displayable:impl(builtins.table, {
