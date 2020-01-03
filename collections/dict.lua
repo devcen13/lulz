@@ -6,23 +6,23 @@ local fn = require 'lulz.functional'
 
 
 local dict = class {
-  __name__  = 'dict',
+  __name__  = 'dict';
 
   __init__ = function(self, values)
     rawset(self, '_values', {})
     self:extend(values)
-  end,
+  end;
 
   __get = function(self, k)
     return self:get(k)
-  end,
+  end;
   __set = function(self, k, v)
     self:insert(k, v)
-  end,
+  end;
 
   __eq = function(self, other)
     return self:equals(other)
-  end
+  end;
 }
 
 
@@ -100,7 +100,7 @@ function dict.clear(tbl)
   tbl._values = {}
 end
 
-function dict.size(tbl)
+function dict.count(tbl)
   return fn.count(_dict_data(tbl))
 end
 

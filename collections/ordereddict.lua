@@ -10,7 +10,7 @@ local clone = I.clonable.clone
 
 
 local ordereddict = dict:inherit {
-  __name__ = 'ordereddict',
+  __name__ = 'ordereddict';
 
   __init__ = function(self, values)
     rawset(self, '_keys', {})
@@ -48,7 +48,7 @@ function ordereddict:clear()
   self._keys = {}
 end
 
-function ordereddict:size()
+function ordereddict:count()
   return #self._keys
 end
 

@@ -17,26 +17,27 @@ end
 
 
 local list = class {
-  __name__ = 'list',
+  __name__ = 'list';
 
   __init__ = function(self, data)
     rawset(self, '_values', {})
     self:extend(data)
-  end,
+  end;
 
   __tostring = function(self)
     return 'list { ' .. str.join(', ', self._values) .. ' }'
-  end,
+  end;
 
-  __len = function(self) return #self._values end,
+  __len = function(self) return #self._values end;
+  count = function(self) return #self._values end;
   size = class.property {
-    get = function(self) return #self._values end,
+    get = function(self) return #self._values end;
   },
 
   __get = function(self, k)
     if list_config.strict then _validate_index(self._values, k) end
     return self._values[k]
-  end,
+  end;
   __set = function(self, k, v)
     if list_config.strict then _validate_index(self._values, k) end
     self._values[k] = v
