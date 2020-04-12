@@ -14,6 +14,7 @@ local TestCase = class {
   cases = {},
   fast_test = false,
   verbose = true,
+  fail_on_assert = false,
 
   __init_subclass__ = function(self)
     table.insert(_testcaseclasses, self)
@@ -107,9 +108,14 @@ TestCase.args_test.__class_call__ = TestCase.args_test.new
 function TestCase:run_test(testname, func, ...)
   local instance = self:new()
   instance:setup()
-  local res, error = pcall(func, instance, ...)
-  if not res then
-    instance:fail(error)
+
+  if self.fail_on_assert then
+    func(instance, ...)
+  else
+    local res, error = pcall(func, instance, ...)
+    if not res then
+      instance:fail(error)
+    end
   end
   instance:teardown()
   instance:print_results(testname)
