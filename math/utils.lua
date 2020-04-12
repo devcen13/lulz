@@ -5,10 +5,11 @@ local math = clonable.clone(math)
 
 math.inf = tonumber('inf')
 
-function math.sign(x)
-  assert(type(x) == 'number')
-  if x < 0 then return -1 end
-  return 1
+function math.sign(x, eps)
+  eps = eps or 0
+  if x < eps then return -1 end
+  if x > eps then return  1 end
+  return 0
 end
 
 function math.clamp(val, min, max)
