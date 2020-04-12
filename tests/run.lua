@@ -31,5 +31,7 @@ require 'lulz.tests.test_ordereddict'
 -- math
 require 'lulz.tests.test_vec'
 
+require 'lulz.serialize.tests'
+
 
 tests:run_all_tests()
