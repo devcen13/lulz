@@ -13,6 +13,7 @@ local interface_mt = {
     return self.__id__ == other.__id__
   end,
   __newindex = function(self, k, v)
+    if k == 'convert' then rawset(self, k, v) end
     assert(types.isinstance(k, types.str))
     assert(types.isinstance(v, types.func))
 
